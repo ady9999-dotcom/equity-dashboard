@@ -1,0 +1,46 @@
+# ─────────────────────────────────────────────────────────────
+#  PERSONAL / PRIVATE DATA — never commit these to GitHub
+# ─────────────────────────────────────────────────────────────
+# Your real portfolio positions (62 holdings, qty, avg cost, P&L):
+holdings_state.json
+# Research overlay + its dated archive reference YOUR specific holdings:
+research_overlay.json
+research_archive/
+# Any exported broker CSVs or the audited-portfolio Excel, if copied in:
+*.csv
+*.xlsx
+*.xls
+
+# ─────────────────────────────────────────────────────────────
+#  Runtime / build junk
+# ─────────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.log
+scratch_*.txt
+scratch_*.log
+server.log
+scratch_server.log
+
+# ─────────────────────────────────────────────────────────────
+#  Local tool / editor config
+# ─────────────────────────────────────────────────────────────
+.claude/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ─────────────────────────────────────────────────────────────
+#  Python virtual environments
+# ─────────────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+
+# Local path to your audited-portfolio Excel folder (personal, never publish):
+framework_path.txt
+
+# Your private methodology "secret sauce" — keep out of the repo:
+GOVERNING_SKILL.md

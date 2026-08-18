@@ -1,0 +1,7 @@
+# Normalise line endings so the repo is consistent across machines.
+* text=auto eol=lf
+*.bat text eol=crlf
+*.png binary
+*.jpg binary
+*.xlsx binary
+*.xls binary

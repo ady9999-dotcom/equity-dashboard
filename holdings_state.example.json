@@ -1,0 +1,20 @@
+{
+  "_comment": "TEMPLATE ONLY — the real file (holdings_state.json) is git-ignored because it holds your actual positions. The app recreates holdings_state.json automatically when you upload a Zerodha CSV in the Equity Holdings tab. This example just documents the shape.",
+  "savedAt": "2026-08-20T12:00:00.000Z",
+  "fname": "holdings.csv",
+  "holdings": [
+    {
+      "symbol": "RELIANCE",
+      "qty": 100,
+      "avg": 1250.00,
+      "ltp": 1310.00,
+      "curVal": 131000,
+      "invested": 125000,
+      "pnl": 6000,
+      "pnlPct": 4.8,
+      "weight": 5.0,
+      "live": null,
+      "research": null
+    }
+  ]
+}

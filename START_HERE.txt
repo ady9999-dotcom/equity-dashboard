@@ -1,0 +1,79 @@
+========================================================
+  EQUITY DASHBOARD — HOW TO START IT (step by step)
+========================================================
+
+WHERE ARE THE FILES?
+  This folder — the one that contains run.bat and server.py.
+  (Wherever you downloaded / unzipped this project.)
+
+
+----------------------------------------
+  TO START THE DASHBOARD
+----------------------------------------
+
+STEP 1.  Open the "Claude" folder on your Desktop.
+
+STEP 2.  Find the file named:  run.bat
+         (It may show just as "run" with a gear/cog icon.)
+
+STEP 3.  DOUBLE-CLICK  run.bat
+         A black window will open. This is normal.
+
+           - The FIRST time, it may take 1-3 minutes while it
+             installs some libraries. Later runs take a few seconds.
+           - If Windows shows a blue "Windows protected your PC" box,
+             click "More info" -> "Run anyway". (It's your own file.)
+
+STEP 4.  Your web browser will open automatically at:
+             http://127.0.0.1:5000
+
+         If the page looks blank or says "can't reach", wait ~5 seconds
+         and press F5 (refresh). The server just needs a moment to start.
+
+STEP 5.  In the search box (top right), type a company name or symbol,
+         e.g.  RELIANCE   or   TCS   or   HDFCBANK
+         and click it. The dashboard fills with live data.
+
+*** IMPORTANT: Keep the black window OPEN while you use the dashboard. ***
+    Closing it stops the dashboard.
+
+
+----------------------------------------
+  HOW DO I KNOW IT'S WORKING?
+----------------------------------------
+
+  YES, it's working if:
+    - The top banner is GREEN and says "Live data".
+    - You see a share price, cash-flow charts, ratios, and
+      a "Shareholding Pattern" section with Promoter / FII / DII / Retail.
+
+  Something's off if:
+    - The banner is YELLOW ("backend offline / sample data")
+        -> The server isn't running. Make sure the black window is
+           still open, then refresh the page (F5).
+    - The Shareholding Pattern section is missing
+        -> That data comes from NSE, which only answers from a home
+           internet connection. On office/VPN networks it may be blocked;
+           everything else (price, ratios, charts) still works.
+
+
+----------------------------------------
+  TO STOP THE DASHBOARD
+----------------------------------------
+
+  Close the black window (or click it and press Ctrl+C).
+
+
+----------------------------------------
+  IF DOUBLE-CLICKING run.bat DOESN'T WORK
+----------------------------------------
+
+  1. Open this project folder in File Explorer, click the address bar,
+     type  cmd  and press Enter (a black window opens in this folder).
+  2. In the black window, type this and press Enter:
+
+        py server.py
+
+  3. Then open your browser and go to:  http://127.0.0.1:5000
+
+========================================================

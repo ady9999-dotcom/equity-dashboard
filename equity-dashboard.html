@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Equity Dashboard — BSE / NSE</title>
+<style>
+  :root{
+    --bg:#0b0f17; --panel:#121826; --panel2:#0f1420; --line:#1f2937;
+    --txt:#e6edf3; --muted:#8b98ab; --accent:#4f9dff; --accent2:#22c55e;
+    --red:#ef4444; --amber:#f59e0b; --green:#22c55e; --violet:#a855f7;
+    --chip:#1b2436;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font-family:Arial,"Helvetica Neue",Helvetica,sans-serif;font-size:12.5px;line-height:1.45}
+  a{color:var(--accent)}
+  header{padding:16px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:18px;flex-wrap:wrap;background:linear-gradient(180deg,#101725,#0b0f17)}
+  header h1{font-size:15px;margin:0;font-weight:650;letter-spacing:.2px}
+  header .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);padding:2px 8px;border-radius:20px}
+  .search-wrap{position:relative;margin-left:auto;min-width:320px}
+  #search{width:100%;padding:10px 12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;color:var(--txt);font-size:14px;outline:none}
+  #search:focus{border-color:var(--accent)}
+  .dropdown{position:absolute;top:46px;left:0;right:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;max-height:340px;overflow:auto;z-index:40;display:none;box-shadow:0 18px 40px rgba(0,0,0,.5)}
+  .dropdown.open{display:block}
+  .opt{padding:10px 12px;cursor:pointer;display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--panel2)}
+  .opt:hover,.opt.active{background:var(--chip)}
+  .opt .nm{font-weight:600}
+  .opt .ex{font-size:11px;color:var(--muted)}
+  main{padding:14px 20px 24px;max-width:1440px;margin:0 auto}
+  .grid{display:grid;gap:12px}
+  .cols-4{grid-template-columns:repeat(4,1fr)}
+  .cols-3{grid-template-columns:repeat(3,1fr)}
+  .cols-2{grid-template-columns:repeat(2,1fr)}
+  @media(max-width:1080px){.cols-4{grid-template-columns:repeat(2,1fr)}.cols-3,.cols-2{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 14px}
+  .card h3{margin:0 0 4px;font-size:13px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.6px}
+  .card .sub{font-size:11px;color:var(--muted);margin-bottom:10px}
+  .price-hero{display:flex;align-items:flex-end;gap:22px;flex-wrap:wrap}
+  .price-hero .big{font-size:32px;font-weight:700;line-height:1}
+  .chg{font-size:15px;font-weight:600}
+  .up{color:var(--green)} .down{color:var(--red)}
+  .metrics{display:flex;gap:26px;flex-wrap:wrap;margin-top:6px}
+  .metric .k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  .metric .v{font-size:17px;font-weight:650}
+  .kpi .v{font-size:21px;font-weight:700;margin-top:2px}
+  .kpi .cap{font-size:11px;color:var(--muted)}
+  .badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px}
+  .b-green{background:rgba(34,197,94,.15);color:#4ade80}
+  .b-amber{background:rgba(245,158,11,.15);color:#fbbf24}
+  .b-red{background:rgba(239,68,68,.15);color:#f87171}
+  .b-blue{background:rgba(79,157,255,.15);color:#7db8ff}
+  .persona-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .ptab{padding:7px 13px;border:1px solid var(--line);border-radius:20px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--muted);background:var(--panel2)}
+  .ptab.active{background:var(--accent);color:#04101f;border-color:var(--accent)}
+  .persona-body{font-size:14px;line-height:1.7}
+  .persona-body .who{font-weight:700;margin-bottom:2px}
+  .persona-body .style{color:var(--muted);font-size:12px;margin-bottom:10px}
+  .verdict{display:inline-block;font-weight:700;padding:3px 12px;border-radius:8px;margin-top:10px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--panel2)}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+  .ratio-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--panel2)}
+  .ratio-row:last-child{border-bottom:none}
+  .ratio-row .lbl{color:var(--muted)}
+  .ratio-row .val{font-weight:650}
+  .flag{display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-bottom:1px solid var(--panel2);font-size:13px}
+  .flag:last-child{border-bottom:none}
+  .flag .ico{flex:0 0 auto;margin-top:1px}
+  .section-title{font-size:14.5px;font-weight:650;margin:24px 2px 4px}
+  .metric .v{font-size:15px !important}
+  /* forensic ratio panel */
+  .rtabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+  .rtab{padding:6px 11px;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:11.5px;font-weight:600;color:var(--muted);background:var(--panel2);display:flex;align-items:center;gap:6px}
+  .rtab.active{background:var(--accent);color:#04101f;border-color:var(--accent)}
+  .rtab .cnt{font-size:10px;background:rgba(255,255,255,.14);border-radius:10px;padding:0 6px}
+  .rtab.active .cnt{background:rgba(0,0,0,.18)}
+  .rtable{width:100%;border-collapse:collapse;font-size:12.5px}
+  .rtable th,.rtable td{padding:8px 10px;border-bottom:1px solid var(--panel2);text-align:left;vertical-align:top}
+  .rtable th{color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.4px}
+  .rtable td.val{text-align:right;font-weight:650;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .rtable .rn{font-weight:600}
+  .rtable .rf{font-size:10.5px;color:var(--muted)}
+  .sig{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap}
+  .sig-good{background:rgba(34,197,94,.16);color:#4ade80}
+  .sig-warn{background:rgba(245,158,11,.16);color:#fbbf24}
+  .sig-bad{background:rgba(239,68,68,.16);color:#f87171}
+  .sig-na{background:rgba(139,152,171,.14);color:#9fb0c4}
+  .health{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;margin-bottom:12px}
+  .health b{font-size:14px}
+  /* top nav */
+  .navtabs{display:flex;gap:6px}
+  .navtab{padding:7px 14px;border:1px solid var(--line);border-radius:9px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--muted);background:var(--panel2);font-family:inherit}
+  .navtab.active{background:var(--accent);color:#04101f;border-color:var(--accent)}
+  /* holdings */
+  .dropzone{margin-top:12px;border:2px dashed var(--line);border-radius:12px;padding:26px;text-align:center;cursor:pointer;display:flex;flex-direction:column;gap:8px;align-items:center;transition:.15s}
+  .dropzone:hover,.dropzone.drag{border-color:var(--accent);background:rgba(79,157,255,.06)}
+  .vbadge{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;white-space:nowrap}
+  .v-hold{background:rgba(79,157,255,.16);color:#7db8ff}
+  .v-add{background:rgba(34,197,94,.18);color:#4ade80}
+  .v-trim{background:rgba(245,158,11,.18);color:#fbbf24}
+  .v-exit,.v-sell{background:rgba(239,68,68,.18);color:#f87171}
+  .v-none{background:rgba(139,152,171,.14);color:#9fb0c4}
+  .pips{display:inline-flex;gap:2px;vertical-align:middle}
+  .pip{width:7px;height:7px;border-radius:50%;background:var(--line)}
+  .pip.on{background:var(--accent)}
+  .htr{cursor:pointer}
+  .htr:hover{background:var(--chip)}
+  .htr.sel{background:var(--chip);box-shadow:inset 3px 0 0 var(--accent)}
+  .btn{padding:8px 14px;border:1px solid var(--line);border-radius:9px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--txt);background:var(--panel2);font-family:inherit}
+  .btn:hover{border-color:var(--accent)}
+  .btn-primary{background:var(--accent);color:#04101f;border-color:var(--accent)}
+  .btn:disabled{opacity:.5;cursor:default}
+  .ptag{display:inline-block;font-size:10.5px;font-weight:600;padding:1px 7px;border-radius:5px;margin:2px 3px 2px 0}
+  .pt-tailwind{background:rgba(34,197,94,.15);color:#4ade80}
+  .pt-headwind,.pt-terminal{background:rgba(239,68,68,.15);color:#f87171}
+  .pt-tail,.pt-mixed{background:rgba(245,158,11,.15);color:#fbbf24}
+  .progress{height:6px;background:var(--panel2);border-radius:4px;overflow:hidden;margin-top:8px}
+  .progress > div{height:100%;background:var(--accent);width:0;transition:width .2s}
+  .foot{color:var(--muted);font-size:11px;padding:20px 22px;border-top:1px solid var(--line);margin-top:20px;line-height:1.6}
+  .mos-bar{height:12px;border-radius:6px;background:var(--panel2);overflow:hidden;position:relative;margin-top:8px}
+  .mos-fill{height:100%;border-radius:6px}
+  .tick-line{stroke:var(--line);stroke-width:1}
+  .disclaimer{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);color:#fbbf24;padding:10px 14px;border-radius:10px;font-size:12px;margin-bottom:18px}
+  .spinner{width:22px;height:22px;border:3px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  code{background:var(--panel2);padding:1px 6px;border-radius:5px;font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <h1>📊 Equity</h1>
+  <nav class="navtabs">
+    <button class="navtab active" data-view="dashboard">Equity Dashboard</button>
+    <button class="navtab" data-view="holdings">Equity Holdings</button>
+  </nav>
+  <span class="tag" id="asof"></span>
+  <div class="search-wrap" id="searchWrap">
+    <input id="search" placeholder="Search company or ticker (e.g. Reliance, TCS, INFY)…" autocomplete="off">
+    <div class="dropdown" id="dropdown"></div>
+  </div>
+</header>
+
+<main>
+ <div id="viewDashboard">
+  <div class="disclaimer" id="disclaimer">
+    ⚠️ <b>Prototype with illustrative sample data.</b> Figures are representative, not live market data. See the note at the bottom for how to wire this to a real BSE/NSE feed or your own JSON.
+  </div>
+
+  <!-- PRICE HERO -->
+  <div class="card" id="hero"></div>
+
+  <!-- KPI ROW -->
+  <div class="section-title">Cash & Capital</div>
+  <div class="grid cols-4" id="kpis"></div>
+
+  <!-- BANK / NBFC / FI VIEW (lenders only) -->
+  <div id="bankSection"></div>
+
+  <!-- CASH FLOW SOURCES / USES -->
+  <div class="section-title">Where cash comes from &amp; where it goes</div>
+  <div class="grid cols-2">
+    <div class="card">
+      <h3>Sources of Cash</h3><div class="sub">Latest full year (₹ Cr)</div>
+      <div id="sources"></div>
+    </div>
+    <div class="card">
+      <h3>Uses of Cash</h3><div class="sub">Latest full year (₹ Cr)</div>
+      <div id="uses"></div>
+    </div>
+  </div>
+
+  <!-- CAPEX / CASH BALANCE / FCF -->
+  <div class="grid cols-2" style="margin-top:16px">
+    <div class="card">
+      <h3>Capex vs Operating Cash Flow</h3><div class="sub">Last 5 years (₹ Cr)</div>
+      <div id="capexChart"></div>
+    </div>
+    <div class="card">
+      <h3>Cash Balance &amp; Free Operating Cash Flow</h3><div class="sub">Last 5 years (₹ Cr)</div>
+      <div id="fcfChart"></div>
+    </div>
+  </div>
+
+  <!-- WORKING CAPITAL -->
+  <div class="section-title">Working Capital Cycle</div>
+  <div class="grid cols-3" id="wcCards"></div>
+  <div class="grid cols-2" style="margin-top:12px;align-items:stretch">
+    <div class="card"><h3>Cash Conversion Cycle trend</h3><div class="sub">Days — lower is better</div><div id="cccChart"></div></div>
+    <div class="card" id="cccSummary"></div>
+  </div>
+
+  <!-- 8 QUARTER PERFORMANCE -->
+  <input type="file" id="screenerInput" accept=".xlsx" style="display:none">
+  <div class="section-title" id="perfTitle">Quarterly Performance <span id="screenerCtrl" style="font-weight:400;font-size:11.5px"></span></div>
+  <div class="grid" style="grid-template-columns:1.55fr 1fr;align-items:stretch">
+    <div class="card">
+      <h3>Revenue, EBITDA &amp; Net Profit</h3><div class="sub">₹ Cr, with EBITDA &amp; net margin %</div>
+      <div id="qChart"></div>
+    </div>
+    <div class="card" id="qLatest"></div>
+  </div>
+  <div class="card" style="margin-top:12px"><div style="overflow-x:auto"><table id="qTable"></table></div><div class="cap" id="qNote" style="margin-top:8px"></div></div>
+
+  <!-- RATIO SUMMARY -->
+  <div class="section-title">Analysis — valuation, quality &amp; risk</div>
+  <div class="grid cols-3">
+    <div class="card">
+      <h3>Intrinsic Value &amp; Margin of Safety</h3>
+      <div id="ivBox"></div>
+    </div>
+    <div class="card">
+      <h3>Debt Situation</h3>
+      <div id="debtBox"></div>
+    </div>
+    <div class="card">
+      <h3>Forensic / Accounting Flags</h3>
+      <div id="forensicBox"></div>
+    </div>
+  </div>
+  <div class="grid cols-2" style="margin-top:16px">
+    <div class="card">
+      <h3>Key Ratios</h3>
+      <div id="ratioBox"></div>
+    </div>
+    <div class="card">
+      <h3>Policy &amp; Plans</h3>
+      <div id="policyBox"></div>
+    </div>
+  </div>
+  <div class="section-title" id="scorecardTitle" style="display:none">Decision scorecard <span style="font-size:12px;color:var(--muted);font-weight:400">— §15, a decision aid (not a mechanical rule)</span></div>
+  <div id="scorecardCard"></div>
+  <div class="section-title" id="sectorLensTitle" style="display:none">Sector lens <span style="font-size:12px;color:var(--muted);font-weight:400">— how this sector must actually be read</span></div>
+  <div id="sectorLensCard"></div>
+
+  <!-- SHAREHOLDING PATTERN (NSE) -->
+  <div class="section-title" id="shTitle" style="display:none">Shareholding Pattern <span style="font-size:12px;color:var(--muted);font-weight:400">— NSE, latest quarterly filing</span></div>
+  <div class="grid cols-2" id="shGrid"></div>
+
+  <!-- FORENSIC RATIO ANALYSIS (tabbed) -->
+  <div class="section-title" id="frTitle" style="display:none">Forensic Ratio Analysis <span style="font-size:12px;color:var(--muted);font-weight:400">— click a category · each ratio interpreted good / watch / concern</span></div>
+  <div class="card" id="frCard" style="display:none">
+    <div class="health" id="frHealth"></div>
+    <div class="rtabs" id="rtabs"></div>
+    <div style="overflow-x:auto"><table class="rtable" id="rtable"></table></div>
+  </div>
+
+  <!-- CORPORATE CALENDAR (NSE) -->
+  <div class="section-title" id="corpTitle" style="display:none">Corporate calendar &amp; disclosures <span style="font-size:12px;color:var(--muted);font-weight:400">— NSE</span></div>
+  <div class="grid cols-2" id="corpGrid"></div>
+
+  <!-- PERSONA EXEC SUMMARY -->
+  <div class="section-title">Executive Summary — through the eyes of the masters</div>
+  <div class="card">
+    <div class="persona-tabs" id="ptabs"></div>
+    <div class="persona-body" id="personaBody"></div>
+  </div>
+ </div><!-- /viewDashboard -->
+
+ <div id="viewHoldings" style="display:none">
+   <!-- file input kept OUTSIDE uploadCard so it survives the card being collapsed -->
+   <input type="file" id="csvInput" accept=".csv,text/csv" style="display:none">
+   <div class="disclaimer" id="fwBanner" style="display:none"></div>
+   <div class="card" id="uploadCard">
+     <h3>Your portfolio · verdict reading</h3>
+     <div class="sub">Upload your Zerodha holdings CSV (Console → Portfolio → Holdings → Download). Your framework's audited verdict is matched to each holding. Nothing is uploaded to any server — the file is read in your browser.</div>
+     <div id="dropzone" class="dropzone">
+       <div style="font-size:26px">📄⬆️</div>
+       <div><b>Drop your Zerodha holdings CSV here</b> or click to choose a file</div>
+       <div style="font-size:11px;color:var(--muted)">Accepts the Console holdings export (.csv). Averages/LTP are read from the file.</div>
+     </div>
+     <div id="csvMsg" style="margin-top:10px;font-size:12px"></div>
+   </div>
+
+   <div id="holdingsResult" style="display:none">
+     <div class="grid cols-4" id="portSummary" style="margin-top:14px"></div>
+     <div class="card" id="verdictBar" style="margin-top:12px"></div>
+     <div class="section-title">Action list <span id="actFilter" style="font-size:12px;color:var(--muted);font-weight:400"></span></div>
+     <div id="holdFilters" style="margin:4px 0 10px"></div>
+     <div class="card" style="overflow-x:auto"><table class="rtable" id="holdTable"></table></div>
+     <div class="section-title" id="detailTitle">Holding detail</div>
+     <div class="card" id="holdDetail"><div style="color:var(--muted);font-size:12px">Click any holding row above to see its full reading — verdict rationale, sector policy, risks, valuation band, tax note and execution plan.</div></div>
+   </div>
+ </div><!-- /viewHoldings -->
+</main>
+
+<div class="foot" id="foot"></div>
+
+<script>
+/* ============================================================
+   SAMPLE DATASET  — replace `DATA` with a live feed or JSON file.
+   Each company object is self-describing; the render code below
+   is fully data-driven, so new companies just need this shape.
+   ============================================================ */
+const SAMPLE = {
+  RELIANCE: {
+    name:"Reliance Industries Ltd", ticker:"RELIANCE", bse:"500325", nse:"RELIANCE",
+    sector:"Oil-to-Chemicals, Retail, Telecom", exchange:"NSE + BSE",
+    price:2945.60, prevClose:2903.15, currency:"₹",
+    mcap:1993000, pe:28.4, pb:2.3, divYield:0.35,
+    high52:3217, low52:2220,
+    kpis:{ opCashFlow:158000, capex:141000, cashBal:224000, fcf:17000 },
+    sources:[ {k:"Operating cash flow",v:158000,c:"green"},{k:"New borrowings",v:62000,c:"amber"},{k:"Asset / stake sales",v:18000,c:"blue"} ],
+    uses:[ {k:"Capex (growth+maint.)",v:141000,c:"violet"},{k:"Debt repayment",v:48000,c:"amber"},{k:"Interest",v:23000,c:"red"},{k:"Dividends",v:6500,c:"blue"} ],
+    capex:[ {y:"FY21",ocf:110000,capex:79000},{y:"FY22",ocf:113000,capex:101000},{y:"FY23",ocf:115000,capex:142000},{y:"FY24",ocf:158000,capex:141000},{y:"FY25E",ocf:171000,capex:120000} ],
+    fcf:[ {y:"FY21",cash:250000,fcf:31000},{y:"FY22",cash:224000,fcf:12000},{y:"FY23",cash:198000,fcf:-27000},{y:"FY24",cash:224000,fcf:17000},{y:"FY25E",cash:245000,fcf:51000} ],
+    wc:{ dso:38, dio:44, dpo:66 },
+    ccc:[ {y:"FY21",d:24},{y:"FY22",d:20},{y:"FY23",d:18},{y:"FY24",d:16},{y:"FY25E",d:14} ],
+    quarters:[
+      {q:"Q1FY23",rev:219000,np:17955},{q:"Q2FY23",rev:232000,np:13656},{q:"Q3FY23",rev:220000,np:15792},{q:"Q4FY23",rev:216000,np:19299},
+      {q:"Q1FY24",rev:210000,np:16011},{q:"Q2FY24",rev:231000,np:17394},{q:"Q3FY24",rev:227000,np:17265},{q:"Q4FY24",rev:236000,np:18951}
+    ],
+    iv:{ intrinsic:3150, price:2945.60, method:"DCF, 11% WACC, 5% terminal" },
+    debt:{ grossDebt:322000, netDebt:98000, deRatio:0.44, interestCover:6.1, rating:"CRISIL AAA / Stable" },
+    forensic:[
+      {t:"CFO vs Net Profit tracks well (0.9x avg)",s:"green"},
+      {t:"Receivable days stable, no channel-stuffing signs",s:"green"},
+      {t:"High capitalised interest — watch asset quality",s:"amber"},
+      {t:"Complex related-party & Jio/Retail holding structure",s:"amber"}
+    ],
+    ratios:[ {k:"ROE",v:"9.1%"},{k:"ROCE",v:"9.8%"},{k:"Net margin",v:"7.9%"},{k:"P/E",v:"28.4"},{k:"P/B",v:"2.3"},{k:"EV/EBITDA",v:"13.1"} ],
+    policy:[
+      "Retail + Jio IPO/value-unlock overhang and catalyst",
+      "New energy (solar, hydrogen, batteries) ₹75k Cr program",
+      "Deleveraging after peak-capex FY23; FCF turning positive",
+      "Dividend modest; capital reinvested for growth"
+    ],
+    personas:{
+      buffett:{verdict:"Watch",vc:"amber",text:"A wonderful set of franchises — retail and telecom have real moats and pricing power — bolted onto a capital-hungry commodity refining business I understand less well. The reinvestment runway is enormous, but so is the capex. I'd want the free cash flow to prove itself for a couple more years before calling it a compounder. At ~28x earnings I'm paying for the future, not the present."},
+      munger:{verdict:"Watch",vc:"amber",text:"Invert: what kills this? Debt, a bungled new-energy bet, and a holding structure so complex even insiders squint at it. That complexity is a red flag — I like businesses I can explain in a sentence. Jio's scale is genuinely admirable, near-monopoly economics. But I don't reward conglomerate empire-building with a premium multiple."},
+      graham:{verdict:"Avoid",vc:"red",text:"Price ₹2,946 against my estimate of intrinsic ~₹3,150 leaves a margin of safety of only ~6% — nowhere near my one-third cushion. P/B of 2.3 and P/E of 28 are well outside defensive limits. A fine enterprise, but the price gives the investor no protection against being wrong. Not a Graham purchase."},
+      lynch:{verdict:"Hold",vc:"amber",text:"This is a 'stalwart' with a hidden 'fast grower' inside it (Jio + Retail). PEG is rich if you use blended growth, cheap if telecom/retail re-rate on listing. The story is easy to tell your neighbour — everyone in India uses Jio — and that's a good sign. I'd hold, add on a market panic, and watch the retail same-store-sales numbers like a hawk."},
+      dalio:{verdict:"Diversifier",vc:"blue",text:"As a machine, this is a levered bet on Indian consumption plus a cyclical energy engine — decent for a growth-and-inflation-up regime, vulnerable to rate shocks given the debt load. Net-debt is falling, which de-risks the machine. I'd size it as one position in a balanced basket, not a concentrated bet; the tail risk is policy and refining margins, both outside management's control."}
+    }
+  },
+
+  TCS: {
+    name:"Tata Consultancy Services Ltd", ticker:"TCS", bse:"532540", nse:"TCS",
+    sector:"IT Services", exchange:"NSE + BSE",
+    price:3890.20, prevClose:3921.75, currency:"₹",
+    mcap:1408000, pe:29.1, pb:14.2, divYield:1.7,
+    high52:4585, low52:3311,
+    kpis:{ opCashFlow:44300, capex:2100, cashBal:53000, fcf:42200 },
+    sources:[ {k:"Operating cash flow",v:44300,c:"green"},{k:"Interest / treasury income",v:4200,c:"blue"} ],
+    uses:[ {k:"Dividends",v:38000,c:"blue"},{k:"Buybacks",v:17000,c:"green"},{k:"Capex",v:2100,c:"violet"},{k:"Lease payments",v:2600,c:"amber"} ],
+    capex:[ {y:"FY21",ocf:38000,capex:1800},{y:"FY22",ocf:40000,capex:2000},{y:"FY23",ocf:41900,capex:2400},{y:"FY24",ocf:44300,capex:2100},{y:"FY25E",ocf:47000,capex:2200} ],
+    fcf:[ {y:"FY21",cash:45000,fcf:36000},{y:"FY22",cash:49000,fcf:38000},{y:"FY23",cash:51000,fcf:39500},{y:"FY24",cash:53000,fcf:42200},{y:"FY25E",cash:55000,fcf:44800} ],
+    wc:{ dso:64, dio:0, dpo:22 },
+    ccc:[ {y:"FY21",d:46},{y:"FY22",d:44},{y:"FY23",d:43},{y:"FY24",d:42},{y:"FY25E",d:41} ],
+    quarters:[
+      {q:"Q1FY23",rev:52758,np:9478},{q:"Q2FY23",rev:55309,np:10431},{q:"Q3FY23",rev:58229,np:10846},{q:"Q4FY23",rev:59162,np:11392},
+      {q:"Q1FY24",rev:59381,np:11074},{q:"Q2FY24",rev:59692,np:11342},{q:"Q3FY24",rev:60583,np:11058},{q:"Q4FY24",rev:61237,np:12434}
+    ],
+    iv:{ intrinsic:3600, price:3890.20, method:"DCF, 10.5% WACC, 4.5% terminal" },
+    debt:{ grossDebt:0, netDebt:-53000, deRatio:0.0, interestCover:99, rating:"Effectively debt-free" },
+    forensic:[
+      {t:"CFO/PAT consistently ~0.95x — clean conversion",s:"green"},
+      {t:"No debt, no capitalised interest games",s:"green"},
+      {t:"Rising DSO / unbilled revenue — monitor",s:"amber"},
+      {t:"Buybacks flatter EPS — adjust per-share growth",s:"amber"}
+    ],
+    ratios:[ {k:"ROE",v:"51%"},{k:"ROCE",v:"64%"},{k:"Net margin",v:"19.3%"},{k:"P/E",v:"29.1"},{k:"P/B",v:"14.2"},{k:"EV/EBITDA",v:"20.4"} ],
+    policy:[
+      "Capital-light; returns ~90% of FCF via dividends+buyback",
+      "GenAI reskilling of 350k+ workforce underway",
+      "Growth decelerating with global IT spend caution",
+      "Progressive dividend policy, periodic buybacks"
+    ],
+    personas:{
+      buffett:{verdict:"Quality, pricey",vc:"amber",text:"This is exactly the kind of business I love — negligible capital needs, 50%+ returns on equity, a fortress balance sheet with no debt, and cash gushing out to owners. The only question is price. At 29x earnings the market already knows it's wonderful. I'd happily own it forever; I'd just prefer to buy it in a bad year for the whole sector."},
+      munger:{verdict:"Great business",vc:"green",text:"A business that earns 60%+ on capital and needs almost none to grow is a rare and beautiful thing. The moat is switching costs and scale in enterprise relationships. My worry is the second derivative — AI could compress the labour-arbitrage model. But great cultures adapt. I'd rather own the best house in a slowing neighbourhood than a cheap one in a bad one."},
+      graham:{verdict:"Overvalued",vc:"red",text:"Financially impeccable — no debt, huge liquidity, decades of earnings power. But P/B of 14 and P/E of 29 offer the defensive investor no margin of safety at all. My intrinsic estimate of ₹3,600 sits below the ₹3,890 price. Quality does not excuse overpayment. Wait for the price."},
+      lynch:{verdict:"Stalwart hold",vc:"blue",text:"A classic slow-and-steady stalwart — you don't get ten-baggers here, you get a dependable 10–12% with dividends and the occasional buyback sweetener. PEG is a touch above 2, so not cheap. Perfect core holding to sleep well at night; I'd trim if it ran to 35x and add on any sector-wide fear."},
+      dalio:{verdict:"Ballast",vc:"green",text:"As a machine this is low-volatility cash generation with a global revenue base — a natural diversifier and a rupee-hedge given USD billing. The risk factor is a structural AI regime shift, not the economic cycle. Debt-free means it survives almost any environment. I'd hold it as ballast in the equity sleeve of a risk-balanced portfolio."}
+    }
+  },
+
+  INFY: {
+    name:"Infosys Ltd", ticker:"INFY", bse:"500209", nse:"INFY",
+    sector:"IT Services", exchange:"NSE + BSE",
+    price:1642.90, prevClose:1628.40, currency:"₹",
+    mcap:682000, pe:24.6, pb:8.1, divYield:2.3,
+    high52:1953, low52:1358,
+    kpis:{ opCashFlow:25200, capex:2300, cashBal:15500, fcf:22900 },
+    sources:[ {k:"Operating cash flow",v:25200,c:"green"},{k:"Treasury income",v:2600,c:"blue"} ],
+    uses:[ {k:"Dividends",v:16800,c:"blue"},{k:"Buybacks",v:9300,c:"green"},{k:"Capex",v:2300,c:"violet"},{k:"Acquisitions",v:3100,c:"amber"} ],
+    capex:[ {y:"FY21",ocf:19000,capex:1600},{y:"FY22",ocf:21000,capex:2100},{y:"FY23",ocf:22800,capex:2600},{y:"FY24",ocf:25200,capex:2300},{y:"FY25E",ocf:27000,capex:2400} ],
+    fcf:[ {y:"FY21",cash:26000,fcf:17400},{y:"FY22",cash:24000,fcf:18900},{y:"FY23",cash:14000,fcf:20200},{y:"FY24",cash:15500,fcf:22900},{y:"FY25E",cash:17000,fcf:24600} ],
+    wc:{ dso:71, dio:0, dpo:28 },
+    ccc:[ {y:"FY21",d:48},{y:"FY22",d:46},{y:"FY23",d:45},{y:"FY24",d:43},{y:"FY25E",d:42} ],
+    quarters:[
+      {q:"Q1FY23",rev:34470,np:5360},{q:"Q2FY23",rev:36538,np:6021},{q:"Q3FY23",rev:38318,np:6586},{q:"Q4FY23",rev:37441,np:6128},
+      {q:"Q1FY24",rev:37933,np:5945},{q:"Q2FY24",rev:38994,np:6212},{q:"Q3FY24",rev:38821,np:6106},{q:"Q4FY24",rev:37923,np:7969}
+    ],
+    iv:{ intrinsic:1720, price:1642.90, method:"DCF, 10.5% WACC, 4.5% terminal" },
+    debt:{ grossDebt:0, netDebt:-15500, deRatio:0.0, interestCover:80, rating:"Effectively debt-free" },
+    forensic:[
+      {t:"Clean cash conversion, CFO/PAT ~0.9x",s:"green"},
+      {t:"No leverage; conservative accounting history",s:"green"},
+      {t:"Whistleblower episode (2019) resolved — governance watch",s:"amber"},
+      {t:"Rising unbilled revenue in soft demand",s:"amber"}
+    ],
+    ratios:[ {k:"ROE",v:"31%"},{k:"ROCE",v:"39%"},{k:"Net margin",v:"16.5%"},{k:"P/E",v:"24.6"},{k:"P/B",v:"8.1"},{k:"EV/EBITDA",v:"16.2"} ],
+    policy:[
+      "Returns ~85% of FCF to shareholders",
+      "Higher dividend yield than TCS (~2.3%)",
+      "GenAI (Topaz) platform push",
+      "Bolt-on acquisitions for capability"
+    ],
+    personas:{
+      buffett:{verdict:"Watch",vc:"amber",text:"The younger sibling to TCS — same lovely economics, slightly more variable execution. Debt-free, high returns, generous payout. Cheaper than TCS at 25x, which matters. I'd want to see demand stabilise, but this is firmly in the 'too-hard-becomes-easy' pile once the price is right."},
+      munger:{verdict:"Good business",vc:"green",text:"High return on capital, minimal reinvestment need, and a rational payout policy. The 2019 whistleblower affair reminds me that culture is everything in a people business — it was handled, but I keep it on the ledger. Slightly cheaper than the leader for slightly more turbulence; a fair trade."},
+      graham:{verdict:"Borderline",vc:"amber",text:"Uniquely, the price ₹1,643 sits just under my intrinsic estimate of ₹1,720 — a positive margin of safety of ~4%, thin but present, unlike its peers. P/B of 8 is still steep by defensive standards. The most 'Graham-able' of the large-cap IT names, but I'd demand a wider cushion before committing."},
+      lynch:{verdict:"Buy the dip",vc:"green",text:"A stalwart trading below the sector leader with a better yield — that's the kind of quiet value I hunt for. The story is simple, the balance sheet is a fortress, and it pays you to wait. PEG is reasonable. I'd accumulate on IT-sector pessimism and let dividends compound."},
+      dalio:{verdict:"Ballast",vc:"green",text:"Structurally similar machine to TCS — USD-earning, debt-free, cycle-resistant, AI-regime-sensitive. Its higher yield makes it slightly more bond-like, useful when you want income in the equity sleeve. I'd hold both rather than choose; diversification within quality beats conviction on one name."}
+    }
+  },
+
+  ASIANPAINT: {
+    name:"Asian Paints Ltd", ticker:"ASIANPAINT", bse:"500820", nse:"ASIANPAINT",
+    sector:"Paints & Coatings", exchange:"NSE + BSE",
+    price:2860.15, prevClose:2889.90, currency:"₹",
+    mcap:274000, pe:52.3, pb:14.8, divYield:1.1,
+    high52:3422, low52:2670,
+    kpis:{ opCashFlow:5600, capex:2500, cashBal:6200, fcf:3100 },
+    sources:[ {k:"Operating cash flow",v:5600,c:"green"},{k:"Working-capital release",v:900,c:"blue"} ],
+    uses:[ {k:"Capex (new plants)",v:2500,c:"violet"},{k:"Dividends",v:3200,c:"blue"},{k:"Debt/leases",v:600,c:"amber"} ],
+    capex:[ {y:"FY21",ocf:4200,capex:1100},{y:"FY22",ocf:3600,capex:1400},{y:"FY23",ocf:4900,capex:2000},{y:"FY24",ocf:5600,capex:2500},{y:"FY25E",ocf:5900,capex:2900} ],
+    fcf:[ {y:"FY21",cash:5000,fcf:3100},{y:"FY22",cash:4200,fcf:2200},{y:"FY23",cash:5500,fcf:2900},{y:"FY24",cash:6200,fcf:3100},{y:"FY25E",cash:6400,fcf:3000} ],
+    wc:{ dso:33, dio:78, dpo:71 },
+    ccc:[ {y:"FY21",d:34},{y:"FY22",d:41},{y:"FY23",d:38},{y:"FY24",d:40},{y:"FY25E",d:42} ],
+    quarters:[
+      {q:"Q1FY23",rev:8494,np:1036},{q:"Q2FY23",rev:8464,np:790},{q:"Q3FY23",rev:8637,np:1031},{q:"Q4FY23",rev:8787,np:1258},
+      {q:"Q1FY24",rev:8940,np:1575},{q:"Q2FY24",rev:8644,np:1205},{q:"Q3FY24",rev:9075,np:1475},{q:"Q4FY24",rev:8731,np:1257}
+    ],
+    iv:{ intrinsic:2450, price:2860.15, method:"DCF, 11% WACC, 5.5% terminal" },
+    debt:{ grossDebt:2200, netDebt:-4000, deRatio:0.05, interestCover:38, rating:"CRISIL AAA / Stable" },
+    forensic:[
+      {t:"Very clean accounting, high-quality earnings",s:"green"},
+      {t:"Strong distribution moat, pricing power",s:"green"},
+      {t:"New competition (Birla Opus) pressuring share",s:"amber"},
+      {t:"Rich valuation leaves no room for a miss",s:"red"}
+    ],
+    ratios:[ {k:"ROE",v:"28%"},{k:"ROCE",v:"33%"},{k:"Net margin",v:"13.9%"},{k:"P/E",v:"52.3"},{k:"P/B",v:"14.8"},{k:"EV/EBITDA",v:"34.1"} ],
+    policy:[
+      "Volume-led growth, premiumisation strategy",
+      "Capex to defend share vs new entrants",
+      "Steady dividend, low leverage",
+      "Expanding into home-décor adjacencies"
+    ],
+    personas:{
+      buffett:{verdict:"Wonderful, overpriced",vc:"amber",text:"One of the finest consumer franchises in India — a distribution moat competitors have spent decades failing to cross, real pricing power, and lovely returns on capital. But 52x earnings assumes nothing ever goes wrong, and a well-funded new competitor just entered. Wonderful business, terrible entry price. On my watchlist for a fear-driven correction."},
+      munger:{verdict:"Moat, but priced for perfection",vc:"amber",text:"The dealer network is a genuine moat — that's the whole game in paints. But paying 50x for a business now facing a deep-pocketed entrant is the kind of thing that looks foolish in hindsight. I'd rather wait. A great business bought at a silly price is a mediocre investment."},
+      graham:{verdict:"Avoid",vc:"red",text:"P/E of 52 and P/B of 15 are the antithesis of defensive investing. My intrinsic estimate of ₹2,450 is well below the ₹2,860 price — a negative margin of safety. Whatever the quality, this is speculation on continued perfection, not investment. Firmly not for me."},
+      lynch:{verdict:"Great co., wait",vc:"amber",text:"Everyone can see this story — that's usually when the easy money's been made. It's a stalwart priced like a fast grower. New competition could dent the narrative and give me a better entry. I love the business; I'm disciplined on the price. PEG well over 3 says be patient."},
+      dalio:{verdict:"Cyclical-consumer tilt",vc:"amber",text:"A play on Indian housing and discretionary spend — good in a growth-up regime, exposed if consumption slows or the new-entrant price war compresses margins. The balance sheet is sturdy, so the machine survives. But the valuation offers a thin risk premium; I'd underweight until either the price or the competitive picture improves."}
+    }
+  }
+};
+
+/* ---------- helpers ---------- */
+const $ = s=>document.querySelector(s);
+const CLR={green:"#22c55e",amber:"#f59e0b",red:"#ef4444",blue:"#4f9dff",violet:"#a855f7"};
+const fmtCr = n => (n===null||n===undefined||isNaN(n))?"—":(n<0?"-":"")+"₹"+Math.abs(n).toLocaleString('en-IN')+" Cr";
+const fmtP  = n => (n===null||n===undefined||isNaN(n))?"—":"₹"+n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const empty = msg => `<div style="color:var(--muted);font-size:13px;padding:24px 8px;text-align:center">${msg||'Data not available for this company.'}</div>`;
+document.getElementById('asof').textContent = "as of "+new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+
+let activePersona="buffett";
+let currentData=null;
+
+/* ---------- backend detection ---------- */
+// If the page is served by the Flask backend, use same-origin; otherwise try localhost:5000.
+const API = (location.protocol.startsWith('http') && location.port!=='')
+  ? '' : (location.protocol.startsWith('http') ? '' : 'http://127.0.0.1:5000');
+let LIVE=false;                       // becomes true once a backend call succeeds
+async function apiGet(path){
+  const base = API || (location.origin.startsWith('http')?location.origin:'http://127.0.0.1:5000');
+  const r = await fetch(base+path,{cache:'no-store'});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  return r.json();
+}
+
+/* ---------- searchable dropdown ---------- */
+const search=$('#search'), dd=$('#dropdown');
+let ddTimer=null, ddSeq=0, ddActive=-1;
+async function buildDropdown(filter=""){
+  const f=(filter||"").trim();
+  if(f.length<2){
+    dd.innerHTML=`<div class="opt"><span class="ex">Type at least 2 letters — e.g. Navin, Reliance, TCS…</span></div>`;
+    ddActive=-1; return;
+  }
+  const seq=++ddSeq;
+  dd.innerHTML=`<div class="opt"><span class="ex">Searching “${f}”…</span></div>`;
+  let items=[];
+  try{
+    const resp = await apiGet('/api/search?q='+encodeURIComponent(f));
+    if(seq!==ddSeq) return;            // a newer keystroke already fired — drop stale results
+    items = (resp && resp.results) || [];
+    LIVE=true;
+  }catch(e){
+    if(seq!==ddSeq) return;
+    // offline: fall back to the bundled sample companies
+    items=Object.values(SAMPLE).filter(c=>
+      c.name.toLowerCase().includes(f.toLowerCase())||c.ticker.toLowerCase().includes(f.toLowerCase()))
+      .map(c=>({symbol:c.ticker,display:c.ticker,name:c.name,exch:'NSE'}));
+  }
+  ddActive=-1;
+  dd.innerHTML=(items.length? items.map((c,i)=>`<div class="opt" data-k="${c.symbol}" data-i="${i}">
+      <span class="nm">${c.name}</span>
+      <span class="ex">${c.exch||'NSE'} · ${c.display||c.symbol}</span></div>`).join('')
+      : `<div class="opt"><span class="ex">No NSE/BSE match for “${f}”. Try a company name or exact ticker.</span></div>`);
+  dd.querySelectorAll('.opt[data-k]').forEach(o=>o.onclick=()=>{
+    dd.classList.remove('open'); search.value=o.querySelector('.nm').textContent; select(o.dataset.k);
+  });
+}
+function debouncedDropdown(){clearTimeout(ddTimer);ddTimer=setTimeout(()=>buildDropdown(search.value),160);}
+function ddMove(dir){
+  const opts=[...dd.querySelectorAll('.opt[data-k]')]; if(!opts.length) return;
+  ddActive=(ddActive+dir+opts.length)%opts.length;
+  opts.forEach((o,i)=>o.classList.toggle('active',i===ddActive));
+  opts[ddActive].scrollIntoView({block:'nearest'});
+}
+search.addEventListener('focus',()=>{buildDropdown(search.value);dd.classList.add('open')});
+search.addEventListener('input',()=>{debouncedDropdown();dd.classList.add('open')});
+search.addEventListener('keydown',e=>{
+  const opts=[...dd.querySelectorAll('.opt[data-k]')];
+  if(e.key==='ArrowDown'){e.preventDefault();ddMove(1);}
+  else if(e.key==='ArrowUp'){e.preventDefault();ddMove(-1);}
+  else if(e.key==='Enter'){
+    e.preventDefault();
+    if(ddActive>=0&&opts[ddActive]){const o=opts[ddActive];dd.classList.remove('open');search.value=o.querySelector('.nm').textContent;select(o.dataset.k);}
+    else{const v=search.value.trim().toUpperCase(); if(v){dd.classList.remove('open');select(v);}}
+  }
+  else if(e.key==='Escape'){dd.classList.remove('open');}
+});
+document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))dd.classList.remove('open')});
+
+/* ---------- tiny SVG chart lib ---------- */
+function svg(w,h,inner){return `<svg viewBox="0 0 ${w} ${h}" width="100%" preserveAspectRatio="xMidYMid meet" style="display:block;width:100%;height:auto">${inner}</svg>`}
+function axis(x0,y0,x1,y1){return `<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}" class="tick-line"/>`}
+
+// horizontal bar breakdown (sources/uses)
+function barBreakdown(rows){
+  if(!rows||!rows.length) return empty('No breakdown available.');
+  const max=Math.max(...rows.map(r=>r.v));
+  const total=rows.reduce((a,r)=>a+r.v,0);
+  return rows.map(r=>{
+    const pct=(r.v/total*100).toFixed(0);
+    return `<div style="margin:10px 0">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+        <span>${r.k}</span><span style="color:var(--muted)">${fmtCr(r.v)} · ${pct}%</span></div>
+      <div style="height:14px;background:var(--panel2);border-radius:7px;overflow:hidden">
+        <div style="height:100%;width:${(r.v/max*100)}%;background:${CLR[r.c]};border-radius:7px"></div></div>
+    </div>`}).join('');
+}
+
+// grouped bar chart (capex vs ocf)  — two series
+function groupedBars(rows,aKey,bKey,aLbl,bLbl,aColor,bColor){
+  if(!rows||!rows.length) return empty('Multi-year cash-flow data not available.');
+  const W=520,H=240,pad=40,gap=18;
+  const vals=rows.flatMap(r=>[r[aKey],r[bKey]]);
+  const max=Math.max(...vals)*1.1, min=Math.min(0,...vals);
+  const span=max-min;
+  const gw=(W-pad-10)/rows.length;
+  const bw=(gw-gap)/2;
+  const y=v=>H-pad-((v-min)/span)*(H-pad-20);
+  let bars="";
+  rows.forEach((r,i)=>{
+    const gx=pad+i*gw+6;
+    bars+=`<rect x="${gx}" y="${y(Math.max(r[aKey],0))}" width="${bw}" height="${Math.abs(y(r[aKey])-y(0))}" fill="${aColor}" rx="3"/>`;
+    bars+=`<rect x="${gx+bw+4}" y="${y(Math.max(r[bKey],0))}" width="${bw}" height="${Math.abs(y(r[bKey])-y(0))}" fill="${bColor}" rx="3"/>`;
+    bars+=`<text x="${gx+bw}" y="${H-pad+16}" fill="var(--muted)" font-size="11" text-anchor="middle">${r.y}</text>`;
+  });
+  const leg=`<div class="legend"><span><i class="dot" style="background:${aColor}"></i>${aLbl}</span><span><i class="dot" style="background:${bColor}"></i>${bLbl}</span></div>`;
+  return svg(W,H,axis(pad,H-pad,W-4,H-pad)+axis(pad,20,pad,H-pad)+bars)+leg;
+}
+
+// combo: bars (cash) + line (fcf)
+function comboChart(rows){
+  if(!rows||!rows.length) return empty('Cash-balance / FCF history not available.');
+  const W=520,H=240,pad=44;
+  const bars=rows.map(r=>r.cash), line=rows.map(r=>r.fcf);
+  const bmax=Math.max(...bars)*1.1;
+  const lmin=Math.min(0,...line), lmax=Math.max(...line)*1.2, lspan=lmax-lmin;
+  const gw=(W-pad-10)/rows.length;
+  const by=v=>H-pad-(v/bmax)*(H-pad-20);
+  const ly=v=>H-pad-((v-lmin)/lspan)*(H-pad-20);
+  let out="";
+  rows.forEach((r,i)=>{
+    const x=pad+i*gw+gw*0.25, bw=gw*0.5;
+    out+=`<rect x="${x}" y="${by(r.cash)}" width="${bw}" height="${H-pad-by(r.cash)}" fill="#22344d" rx="3"/>`;
+    out+=`<text x="${x+bw/2}" y="${H-pad+16}" fill="var(--muted)" font-size="11" text-anchor="middle">${r.y}</text>`;
+  });
+  const pts=rows.map((r,i)=>{const x=pad+i*gw+gw*0.5;return [x,ly(r.fcf)]});
+  const path="M"+pts.map(p=>p.join(",")).join(" L ");
+  out+=`<path d="${path}" fill="none" stroke="${CLR.green}" stroke-width="2.5"/>`;
+  pts.forEach((p,i)=>{out+=`<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="${CLR.green}"/>
+    <text x="${p[0]}" y="${p[1]-8}" fill="${CLR.green}" font-size="10" text-anchor="middle">${rows[i].fcf}</text>`});
+  const leg=`<div class="legend"><span><i class="dot" style="background:#22344d"></i>Cash balance</span><span><i class="dot" style="background:${CLR.green}"></i>Free operating cash flow</span></div>`;
+  return svg(W,H,axis(pad,H-pad,W-4,H-pad)+out)+leg;
+}
+
+// simple line chart (ccc)
+function lineChart(rows,key,color,label){
+  if(!rows||rows.length<2) return empty('Not enough history to plot a trend.');
+  // if the series is essentially flat at zero (e.g. a company with NO promoter), don't plot a
+  // misleading flat line — say so plainly instead.
+  if(rows.every(r=>Math.abs(r[key]||0)<0.005))
+    return `<div class="cap" style="margin-top:8px">No promoter holding on record — this is a professionally / institutionally held company (0% promoter), so there is no promoter trend to plot.</div>`;
+  const W=560,H=190,padL=40,padR=34;   // extra right margin so the last label isn't clipped
+  const vals=rows.map(r=>r[key]);
+  const max=Math.max(...vals)*1.15,min=Math.min(...vals)*0.7,span=max-min||1;
+  const gw=(W-padL-padR)/(rows.length-1);
+  const y=v=>H-40-((v-min)/span)*(H-40-20);
+  const pts=rows.map((r,i)=>[padL+i*gw,y(r[key])]);
+  const path="M"+pts.map(p=>p.join(",")).join(" L ");
+  const anc=i=>i===0?'start':(i===rows.length-1?'end':'middle');
+  let dots=pts.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="${color}"/>
+    <text x="${p[0]}" y="${p[1]-9}" fill="${color}" font-size="10" text-anchor="${anc(i)}">${(rows[i][key]).toFixed ? (rows[i][key]).toFixed(2) : rows[i][key]}</text>
+    <text x="${p[0]}" y="${H-40+16}" fill="var(--muted)" font-size="11" text-anchor="${anc(i)}">${rows[i].y}</text>`).join('');
+  return svg(W,H,axis(padL,H-40,W-4,H-40)+`<path d="${path}" fill="none" stroke="${color}" stroke-width="2.5"/>`+dots);
+}
+
+// quarterly: revenue bars (left ₹ scale) + EBITDA / Net profit / Interest lines (right ₹ scale)
+function quarterChart(qs){
+  if(!qs||!qs.length) return empty('Quarterly results not available.');
+  const W=720,H=250,pad=46;
+  const base=H-pad, top=22;
+  const revMax=Math.max(...qs.map(q=>q.rev).filter(v=>v!=null))*1.14;
+  const pVals=qs.flatMap(q=>[q.ebitda,q.np,q.interest].filter(v=>v!=null));
+  const pMax=(pVals.length?Math.max(...pVals):1)*1.25;
+  const gw=(W-pad-10)/qs.length;
+  const yb=v=>base-(v/revMax)*(base-top);          // bars (revenue)
+  const yl=v=>base-(v/pMax)*(base-top);            // lines (profit metrics)
+  const REVC='#2b3a52';
+  let out="";
+  qs.forEach((q,i)=>{
+    const x=pad+i*gw+gw*0.28, bw=gw*0.44, cx=pad+i*gw+gw*0.5;
+    if(q.rev!=null) out+=`<rect x="${x}" y="${yb(q.rev)}" width="${bw}" height="${base-yb(q.rev)}" fill="${REVC}" rx="3"/>`;
+    else out+=`<text x="${cx}" y="${base-8}" fill="var(--line)" font-size="9" text-anchor="middle">no data</text>`;
+    out+=`<text x="${cx}" y="${base+16}" fill="var(--muted)" font-size="11" text-anchor="middle">${q.q}</text>`;
+  });
+  const line=(key,color,dash)=>{
+    const pts=qs.map((q,i)=>q[key]!=null?[pad+i*gw+gw*0.5,yl(q[key])]:null).filter(Boolean);
+    if(!pts.length) return "";
+    let s=pts.length>1?`<path d="M${pts.map(p=>p.join(",")).join(" L ")}" fill="none" stroke="${color}" stroke-width="2.2" ${dash?`stroke-dasharray="${dash}"`:''}/>`:"";
+    pts.forEach(p=>s+=`<circle cx="${p[0]}" cy="${p[1]}" r="3.2" fill="${color}"/>`);
+    return s;
+  };
+  const hasInt=qs.some(q=>q.interest!=null), hasEb=qs.some(q=>q.ebitda!=null);
+  out+=line('ebitda','#4fa8e0','')+line('np',CLR.green,'')+line('interest',CLR.red,'5 3');
+  const leg=`<div class="legend">
+     <span><i class="dot" style="background:${REVC}"></i>Revenue (left)</span>
+     ${hasEb?`<span><i class="dot" style="background:#4fa8e0"></i>EBITDA</span>`:''}
+     <span><i class="dot" style="background:${CLR.green}"></i>Net profit</span>
+     ${hasInt?`<span><i class="dot" style="background:${CLR.red}"></i>Interest paid</span>`:''}
+     <span style="color:var(--muted)">— lines on magnified right scale</span></div>`;
+  return svg(W,H,axis(pad,base,W-6,base)+out)+leg;
+}
+
+/* ---------- data loading ---------- */
+function setLoading(name){
+  $('#hero').innerHTML=`<div style="display:flex;align-items:center;gap:14px;color:var(--muted)">
+    <div class="spinner"></div><div>Fetching live data for <b style="color:var(--txt)">${name||'company'}</b> from NSE / Yahoo Finance…</div></div>`;
+}
+async function select(k){
+  search.value=k;
+  setLoading(k);
+  try{
+    const c=await apiGet('/api/company/'+encodeURIComponent(k));
+    if(c.error) throw new Error(c.error);
+    LIVE=true; renderCompany(c);
+  }catch(e){
+    if(SAMPLE[k]){ renderCompany(SAMPLE[k]); flashNote('Backend not reachable — showing bundled sample for '+k+'.'); }
+    else{
+      $('#hero').innerHTML=`<div class="card" style="border-color:var(--red)">
+        <b>Couldn't load ${k}.</b><br><span style="color:var(--muted);font-size:13px">
+        ${LIVE? 'The backend responded with: '+e.message+'. Check the symbol (use the exact NSE ticker, e.g. RELIANCE).'
+              : 'The backend is not running. Start it with <code>python server.py</code>, or pick one of the bundled samples: '
+                + Object.keys(SAMPLE).join(', ')+'.'}</span></div>`;
+    }
+  }
+}
+function flashNote(msg){
+  const d=$('#disclaimer'); d.style.display='block';
+  d.innerHTML='⚠️ '+msg;
+}
+/* ---------- render ---------- */
+function dash(v){return (v===null||v===undefined||v===''||v==='—')? '—' : v;}
+
+function shortQ(dstr){ // "30-JUN-2026" -> "Jun'26"
+  if(!dstr) return '';
+  const m=dstr.split('-'); if(m.length<3) return dstr;
+  const mm=m[1].charAt(0)+m[1].slice(1).toLowerCase();
+  return `${mm}'${m[2].slice(2)}`;
+}
+function renderShareholding(c){
+  const sh=c.shareholding;
+  const has = sh && (sh.promoter!=null || sh.fii!=null || sh.dii!=null || sh.retail!=null);
+  if(!has){ $('#shTitle').style.display='none'; $('#shGrid').innerHTML=''; return; }
+  $('#shTitle').style.display='block';
+  const segs=[
+    {k:'Promoter',v:sh.promoter,c:'#4f9dff'},
+    {k:'FII / FPI',v:sh.fii,c:'#22c55e'},
+    {k:'DII',v:sh.dii,c:'#a855f7'},
+    {k:'Retail & Non-Inst.',v:sh.retail,c:'#f59e0b'},
+  ].filter(s=>s.v!=null && s.v>0);
+  if(sh.nonPromNonPub && sh.nonPromNonPub>0) segs.push({k:'Custodian/Other',v:sh.nonPromNonPub,c:'#64748b'});
+  const bar=segs.map(s=>`<div title="${s.k} ${s.v}%" style="width:${s.v}%;background:${s.c}"></div>`).join('');
+  const legend=segs.map(s=>`<div class="ratio-row" style="padding:6px 0">
+      <span class="lbl"><i class="dot" style="background:${s.c}"></i> ${s.k}</span>
+      <span class="val">${s.v.toFixed(2)}%</span></div>`).join('');
+  const pl=sh.pledgedPct;
+  const plBadge = pl==null?'' :
+    `<div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+       <span class="lbl" style="color:var(--muted)">Promoter shares pledged / encumbered</span>
+       <span class="badge ${pl<1?'b-green':pl<10?'b-amber':'b-red'}">${pl.toFixed(2)}% ${pl<1?'· clean':pl<10?'· watch':'· red flag'}</span></div>`;
+  const card1=`<div class="card"><h3>Ownership split</h3>
+     <div class="sub">As of ${dash(sh.date)}</div>
+     <div style="display:flex;height:22px;border-radius:6px;overflow:hidden;margin:6px 0 14px">${bar}</div>
+     ${legend}${plBadge}</div>`;
+  // institutional activity — holdings + quarter-over-quarter change (buying/selling)
+  const qoq=(delta)=>{
+    if(delta==null) return '<span class="lbl" style="color:var(--muted)">—</span>';
+    const up=delta>=0;
+    return `<span class="badge ${up?'b-green':'b-red'}">${up?'▲':'▼'} ${up?'+':''}${delta.toFixed(2)} pp</span>`;
+  };
+  const irow=(lbl,val,delta)=>`<div class="ratio-row">
+      <span class="lbl">${lbl}</span>
+      <span style="display:flex;gap:10px;align-items:center"><span class="val">${val!=null?val.toFixed(2)+'%':'—'}</span>${qoq(delta)}</span></div>`;
+  const totInst=(sh.fii!=null&&sh.dii!=null)?sh.fii+sh.dii:null;
+  const totInstChg=(sh.fiiChange!=null&&sh.diiChange!=null)?sh.fiiChange+sh.diiChange:null;
+  const qlbl=sh.prevDate?` <span style="color:var(--muted)">vs ${shortQ(sh.prevDate)}</span>`:'';
+  const tr=sh.promoterTrend||[];
+  const trendChart=tr.length>=2
+    ? `<div class="sub" style="margin-top:14px">Promoter holding trend — last ${tr.length} filings</div>${lineChart(tr.map(t=>({y:shortQ(t.date),d:t.promoter})),'d','#4f9dff')}`
+    : '';
+  const card2=`<div class="card"><h3>Institutional activity</h3>
+     <div class="sub">Holding &amp; quarter-on-quarter change${qlbl}</div>
+     ${irow('Foreign (FII / FPI)',sh.fii,sh.fiiChange)}
+     ${irow('Domestic (DII)',sh.dii,sh.diiChange)}
+     ${irow('Total institutional',totInst,totInstChg)}
+     ${irow('Retail &amp; non-inst.',sh.retail,sh.retailChange)}
+     ${trendChart}</div>`;
+  $('#shGrid').innerHTML=card1+card2;
+}
+
+let activeRatioCat=0;
+const SIGLABEL={good:'Good',warn:'Watch',bad:'Concern',na:'Check'};
+function renderForensic(c){
+  const fr=c.forensicRatios;
+  if(!fr||!fr.categories||!fr.categories.length){
+    $('#frTitle').style.display='none'; $('#frCard').style.display='none'; return;
+  }
+  $('#frTitle').style.display='block'; $('#frCard').style.display='block';
+  const cats=fr.categories;
+  if(activeRatioCat>=cats.length) activeRatioCat=0;
+  // health summary (quantitative signals only; 'na' = filings)
+  const k=fr.counts||{};
+  $('#frHealth').innerHTML=
+    `<span><b style="color:#4ade80">${k.good||0}</b> positive</span>
+     <span><b style="color:#fbbf24">${k.warn||0}</b> watch</span>
+     <span><b style="color:#f87171">${k.bad||0}</b> concern</span>
+     <span style="color:var(--muted)"><b style="color:#9fb0c4">${k.na||0}</b> need filings</span>`;
+  // category tabs
+  $('#rtabs').innerHTML=cats.map((cat,i)=>{
+    const bad=cat.ratios.filter(r=>r.signal==='bad').length;
+    return `<div class="rtab ${i===activeRatioCat?'active':''}" data-i="${i}">${cat.name}
+      <span class="cnt">${cat.ratios.length}</span>${bad?`<span class="cnt" style="background:rgba(239,68,68,.3)">${bad}!</span>`:''}</div>`;
+  }).join('');
+  $('#rtabs').querySelectorAll('.rtab').forEach(t=>t.onclick=()=>{activeRatioCat=+t.dataset.i;renderForensic(c)});
+  // table
+  const cat=cats[activeRatioCat];
+  $('#rtable').innerHTML=
+    `<thead><tr><th>${cat.desc||'Ratio'}</th><th style="text-align:right">Value</th><th>Reading</th><th>Interpretation</th></tr></thead><tbody>`+
+    cat.ratios.map(r=>`<tr>
+      <td><div class="rn">${r.n}</div><div class="rf">${r.f||''}</div></td>
+      <td class="val">${r.v}</td>
+      <td><span class="sig sig-${r.signal}">${SIGLABEL[r.signal]||'—'}</span></td>
+      <td>${r.interp||''}</td></tr>`).join('')+`</tbody>`;
+}
+// bank / NBFC / FI view — the RIGHT metrics for a lender (asset quality, funding, spread)
+function renderBankView(c){
+  const b=c.bankView; const box=$('#bankSection'); if(!box){return;}
+  if(!b){ box.innerHTML=''; return; }
+  const cr=v=>v==null?'—':'₹'+Number(v).toLocaleString('en-IN')+' Cr';
+  const pct=v=>v==null?'—':v+'%';
+  // asset-quality colour: banks GNPA good<2 / watch<4 / bad; NNPA good<1 / watch<2
+  const gcol=b.gnpa==null?'':b.gnpa<2?'up':b.gnpa<4?'':'down';
+  const ncol=b.nnpa==null?'':b.nnpa<1?'up':b.nnpa<2?'':'down';
+  const roaGood=b.roa!=null&&(b.isNBFC?b.roa>=2.5:b.roa>=1.5);
+  const stat=(lbl,val,sub,cls)=>`<div style="flex:1;min-width:120px;background:var(--panel2);border-radius:8px;padding:9px 11px">
+    <div class="cap">${lbl}</div><div style="font-size:19px;font-weight:700;line-height:1.1" class="${cls||''}">${val}</div>
+    ${sub?`<div class="cap" style="margin-top:1px">${sub}</div>`:''}</div>`;
+  // compact NII + GNPA trend over the series
+  const S=(b.series||[]).filter(x=>x.nii!=null);
+  const maxN=Math.max(1,...S.map(x=>x.nii));
+  const spark=S.length?`<div style="display:flex;gap:3px;align-items:flex-end;height:46px;margin-top:4px">
+    ${S.map(x=>`<div title="${x.q}: NII ₹${x.nii} Cr${x.gnpa!=null?' · GNPA '+x.gnpa+'%':''}" style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center">
+      <div style="width:100%;background:var(--accent);border-radius:2px 2px 0 0;height:${Math.max(6,x.nii/maxN*40)}px"></div></div>`).join('')}
+  </div><div style="display:flex;gap:3px"><div class="cap" style="flex:1">${S[0].q}</div><div class="cap" style="text-align:right">${S[S.length-1].q}</div></div>`:'';
+  box.innerHTML=`
+  <div class="section-title">🏦 ${b.isNBFC?'NBFC / Financier':'Bank / Lender'} view <span style="font-size:12px;color:var(--muted);font-weight:400">— lender-appropriate metrics (EBITDA, current ratio & inventory days don't apply)</span></div>
+  <div class="grid cols-2" style="align-items:stretch">
+    <div class="card">
+      <h3>Asset quality &amp; returns</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">
+        ${stat('Gross NPA', pct(b.gnpa), b.npaAsOf?('as of '+b.npaAsOf):'', gcol)}
+        ${stat('Net NPA', pct(b.nnpa), b.npaAsOf?('as of '+b.npaAsOf):'', ncol)}
+        ${stat('RoA', b.roa!=null?b.roa+'%':'—', b.isNBFC?'>2.5% strong':'>1.5% strong', roaGood?'up':'')}
+        ${stat('RoE', b.roe!=null?b.roe+'%':'—','', b.roe!=null&&b.roe>=15?'up':'')}
+      </div>
+      <div class="cap" style="margin-top:9px">GNPA↓ alone isn't proof of health — reconcile with slippages, write-offs &amp; PCR (from filings).</div>
+    </div>
+    <div class="card">
+      <h3>Funding franchise &amp; income mix <span class="cap">— latest quarter</span></h3>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">
+        ${stat('Deposits', cr(b.depositsCr), b.depositsCr?'funding base':'not deposit-funded')}
+        ${stat('Net interest income', cr(b.niiCr), b.niiMargin!=null?('NII '+b.niiMargin+'% of income'):'')}
+        ${stat('Interest income', cr(b.intIncomeCr),'')}
+        ${stat('Fee / other income', cr(b.otherIncomeCr), b.feeShare!=null?(b.feeShare+'% of core income'):'')}
+      </div>
+      ${spark?`<div class="cap" style="margin-top:9px">Net interest income trend (last ${S.length}q)</div>${spark}`:''}
+    </div>
+  </div>
+  <div class="cap" style="margin:6px 2px 0">📄 From the bank's results filing / investor deck (not in the automated feed): ${(b.fromFilings||[]).join(' · ')}.</div>`;
+}
+function renderCompany(c){
+  currentData=c;
+  renderBankView(c);
+  const live = c.priceSource && c.priceSource!=='sample';
+  // disclaimer reflects data provenance
+  const dEl=$('#disclaimer');
+  if(live){
+    dEl.style.display='block';
+    dEl.innerHTML=`✅ <b>Live data.</b> Price via <b>${dash(c.priceSource)}</b>; financial statements via Yahoo Finance (mirrors NSE/BSE filings). As of ${dash(c.asOf)}. Figures for information/education — not investment advice.`;
+  }else{
+    dEl.style.display='block';
+    dEl.innerHTML='⚠️ <b>Bundled sample data</b> (backend offline). Start <code>python server.py</code> for live NSE/BSE data.';
+  }
+  const chg=c.price-c.prevClose, chgP=chg/c.prevClose*100, up=chg>=0;
+
+  // hero
+  $('#hero').innerHTML=`
+    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px">
+      <div>
+        <div style="font-size:20px;font-weight:700">${c.name}</div>
+        <div style="color:var(--muted);font-size:13px;margin-top:2px">${c.sector} · <span class="badge b-blue">${c.exchange}</span>
+          &nbsp;NSE: ${c.nse} · BSE: ${c.bse}</div>
+        <div class="price-hero" style="margin-top:14px">
+          <div class="big">${fmtP(c.price)}</div>
+          <div class="chg ${up?'up':'down'}">${up?'▲':'▼'} ${fmtP(Math.abs(chg))} (${up?'+':''}${chgP.toFixed(2)}%)</div>
+        </div>
+        <div class="metrics">
+          <div class="metric"><div class="k">Mkt Cap</div><div class="v">${fmtCr(c.mcap)}</div></div>
+          <div class="metric"><div class="k">P/E</div><div class="v">${c.pe}</div></div>
+          <div class="metric"><div class="k">P/B</div><div class="v">${c.pb}</div></div>
+          <div class="metric"><div class="k">Div Yield</div><div class="v">${c.divYield}%</div></div>
+          <div class="metric"><div class="k">52W Range</div><div class="v">${fmtP(c.low52)} – ${fmtP(c.high52)}</div></div>
+        </div>
+      </div>
+    </div>`;
+
+  // kpis
+  const k=c.kpis;
+  $('#kpis').innerHTML=[
+    {t:"Operating Cash Flow",v:fmtCr(k.opCashFlow),cap:"Cash generated by the business"},
+    {t:"Capex",v:fmtCr(k.capex),cap:"Invested in assets & growth"},
+    {t:"Cash Balance",v:fmtCr(k.cashBal),cap:"Liquidity on the balance sheet"},
+    {t:"Free Cash Flow",v:fmtCr(k.fcf),cap:"OCF minus capex — owner's cash"}
+  ].map(x=>`<div class="card kpi"><h3>${x.t}</h3><div class="v">${x.v}</div><div class="cap">${x.cap}</div></div>`).join('');
+
+  // sources / uses
+  $('#sources').innerHTML=barBreakdown(c.sources);
+  $('#uses').innerHTML=barBreakdown(c.uses);
+
+  // capex + fcf
+  $('#capexChart').innerHTML=groupedBars(c.capex,'ocf','capex','Operating cash flow','Capex',CLR.blue,CLR.violet);
+  $('#fcfChart').innerHTML=comboChart(c.fcf);
+
+  // working capital
+  const w=c.wc, ccc=w.dso+w.dio-w.dpo;
+  $('#wcCards').innerHTML=[
+    {t:"Days Sales Outstanding",v:w.dso,cap:"How fast customers pay",good:w.dso<60},
+    {t:"Days Inventory Outstanding",v:w.dio,cap:"How long stock sits",good:w.dio<60},
+    {t:"Days Payable Outstanding",v:w.dpo,cap:"How long you take to pay (higher = better)",good:w.dpo>50}
+  ].map(x=>`<div class="card kpi"><h3>${x.t}</h3><div class="v">${x.v} <span style="font-size:13px;color:var(--muted)">days</span></div>
+     <div class="cap">${x.cap}</div><div style="margin-top:6px"><span class="badge ${x.good?'b-green':'b-amber'}">${x.good?'Healthy':'Watch'}</span></div></div>`).join('');
+  $('#cccSummary').innerHTML=`<h3>Cash Conversion Cycle</h3>
+     <div class="kpi"><div class="v" style="margin-top:4px">${ccc} <span style="font-size:13px;color:var(--muted)">days</span>
+       <span class="badge ${ccc<30?'b-green':ccc<60?'b-amber':'b-red'}">${ccc<0?'Negative — excellent':ccc<30?'Tight':ccc<60?'Moderate':'Long'}</span></div></div>
+     <div class="ratio-row"><span class="lbl">Days Sales Outstanding</span><span class="val">${w.dso} d</span></div>
+     <div class="ratio-row"><span class="lbl">+ Days Inventory Outstanding</span><span class="val">${w.dio} d</span></div>
+     <div class="ratio-row"><span class="lbl">− Days Payable Outstanding</span><span class="val">${w.dpo} d</span></div>
+     <div class="cap" style="margin-top:8px">Lower means cash is freed faster; negative means suppliers effectively fund the business.</div>`;
+  $('#cccChart').innerHTML=lineChart(c.ccc,'d',CLR.blue);
+
+  // quarters
+  const Q=c.quarters||[];
+  const bv=c.bankView;
+  const isBank=!!(bv&&bv.series&&bv.series.length);
+  const isFin=isBank||/financ|bank|nbfc|insurance/i.test(c.sector||'');
+  const noEb=Q.length>0&&Q.every(q=>q.ebitda==null);
+  const naSpan='<span style="color:var(--muted)">n/a</span>';
+  const hasGap=Q.some(q=>q.missing), nGap=Q.filter(q=>q.missing).length;
+  $('#perfTitle').innerHTML=`Quarterly Performance — last ${(isBank?bv.series.length:Q.length)} quarter${((isBank?bv.series.length:Q.length))!==1?'s':''} `+
+    `<span id="screenerCtrl" style="font-weight:400;font-size:11.5px">`+
+    `${(!isBank&&hasGap)?`<span style="color:#fbbf24">· ${nGap} missing — </span>`:'&nbsp; '}`+
+    `<a href="#" id="screenerLink" class="btn" style="padding:3px 10px;font-size:11px;text-decoration:none;${(!isBank&&hasGap)?'border-color:#fbbf24;color:#fbbf24':''}">📄 ${(!isBank&&hasGap)?'Fill missing quarter from Screener':'Upload Screener Excel'}</a></span>`;
+  const sl=$('#screenerLink'); if(sl) sl.onclick=(e)=>{e.preventDefault(); $('#screenerInput').click();};
+  const pct=(a,b)=>(b&&b!==0)?((a-b)/Math.abs(b)*100):null;
+  const arrow=v=>v===null?'<span style="color:var(--muted)">—</span>':`<span class="${v>=0?'up':'down'}">${v>=0?'▲ +':'▼ '}${v.toFixed(1)}%</span>`;
+  const qoqTxt=(a,b)=>{const v=pct(a,b);return v===null?'':` · QoQ ${arrow(v)}`;};
+  const stat=(lbl,val,sub)=>`<div class="ratio-row"><span class="lbl">${lbl}</span><span style="text-align:right"><span class="val">${val}</span>${sub?`<div style="font-size:10.5px;color:var(--muted)">${sub}</div>`:''}</span></div>`;
+  const qcard=($('#qChart').closest?$('#qChart').closest('.card'):null), qh3=qcard?qcard.querySelector('h3'):null;
+
+  if(isBank){
+    // ---------- LENDER quarterly view: NII / NIM / NPA / net profit (no EBITDA) ----------
+    const BS=bv.series;
+    if(qh3) qh3.innerHTML='Interest income, NII &amp; Net profit <span class="sub" style="display:inline">₹ Cr</span>';
+    $('#qChart').innerHTML=quarterChart(BS.map(x=>({q:x.q, rev:x.intIncome, np:x.np, ebitda:null, interest:x.intExp})));
+    const L=BS[BS.length-1], P=BS.length>1?BS[BS.length-2]:null;
+    $('#qLatest').innerHTML=`<h3>Latest quarter — ${L.q}</h3><div class="sub">lender metrics &amp; quarter-on-quarter</div>
+      ${stat('Net interest income', fmtCr(L.nii), (L.niiMargin!=null?`${L.niiMargin}% of income`:'')+(P&&L.nii!=null&&P.nii!=null?qoqTxt(L.nii,P.nii):''))}
+      ${stat('NIM (est.)', bv.nimEst!=null?bv.nimEst+'%':'—', 'annualised NII ÷ assets')}
+      ${stat('Gross / Net NPA', (bv.gnpa!=null?bv.gnpa+'%':'—')+' / '+(bv.nnpa!=null?bv.nnpa+'%':'—'), bv.npaAsOf?('as of '+bv.npaAsOf):'')}
+      ${stat('RoA · Cost of funds', (bv.roa!=null?bv.roa+'%':'—')+' · '+(bv.cofEst!=null?bv.cofEst+'%':'—'),'')}
+      ${stat('Net profit', fmtCr(L.np), P&&L.np!=null&&P.np!=null?('QoQ '+arrow(pct(L.np,P.np))):'')}`;
+    $('#qTable').innerHTML=`<thead><tr><th>Quarter</th><th>Interest income</th><th>NII</th><th>NII %</th><th>Gross NPA</th><th>Net NPA</th><th>Net Profit</th><th>QoQ NII</th><th>QoQ PAT</th></tr></thead><tbody>`+
+      BS.map((q,i)=>{const p=i>0?BS[i-1]:null;
+        const qn=p&&q.nii!=null&&p.nii!=null?pct(q.nii,p.nii):null;
+        const qp=p&&q.np!=null&&p.np!=null?pct(q.np,p.np):null;
+        return `<tr><td>${q.q}</td><td>${fmtCr(q.intIncome)}</td><td>${fmtCr(q.nii)}</td><td>${q.niiMargin!=null?q.niiMargin+'%':'—'}</td>
+          <td>${q.gnpa!=null?q.gnpa+'%':naSpan}</td><td>${q.nnpa!=null?q.nnpa+'%':naSpan}</td><td>${fmtCr(q.np)}</td>
+          <td>${arrow(qn)}</td><td>${arrow(qp)}</td></tr>`}).join('')+`</tbody>`;
+    $('#qNote').innerHTML='ℹ️ <b>Lender view</b> — EBITDA doesn’t apply; shown instead: Net Interest Income (NII), NII margin, Gross/Net NPA and RoA. <b>NIM is estimated</b> on total assets; exact NIM (avg earning assets), CASA, PCR &amp; cost-to-income are in the results filing. Quarterly NPA on Screener can lag 1–2 quarters.';
+  } else {
+    if(qh3) qh3.innerHTML='Revenue, EBITDA &amp; Net Profit';
+    $('#qChart').innerHTML=quarterChart(Q);
+    // latest-quarter side panel (fills the old empty space)
+    if(Q.length){
+      const L=Q[Q.length-1], P=Q.length>1?Q[Q.length-2]:null;
+      const nm=L.np!=null&&L.rev?(L.np/L.rev*100):null, em=L.ebitda!=null&&L.rev?(L.ebitda/L.rev*100):null;
+      const icov=(L.ebitda!=null&&L.interest)?(L.ebitda/L.interest):null;
+      $('#qLatest').innerHTML=`<h3>Latest quarter — ${L.q}</h3><div class="sub">headline numbers &amp; quarter-on-quarter</div>
+        ${stat('Revenue',fmtCr(L.rev), P?`QoQ ${arrow(pct(L.rev,P.rev))}`:'')}
+        ${stat('EBITDA', noEb?naSpan:fmtCr(L.ebitda), noEb?'not applicable to banks':((em!=null?`margin ${em.toFixed(1)}%`:'')+(P&&L.ebitda!=null&&P.ebitda!=null?qoqTxt(L.ebitda,P.ebitda):'')))}
+        ${stat(isFin?'Interest expense':'Interest paid',fmtCr(L.interest), noEb?'cost of funds (deposits)':(icov!=null?`covered ${icov.toFixed(1)}× by EBITDA`:''))}
+        ${stat('Net profit',fmtCr(L.np), (nm!=null?`margin ${nm.toFixed(1)}%`:'')+(P&&L.np!=null&&P.np!=null?qoqTxt(L.np,P.np):''))}`;
+    } else { $('#qLatest').innerHTML=''; }
+    $('#qTable').innerHTML=`<thead><tr><th>Quarter</th><th>Revenue</th><th>EBITDA</th><th>EBITDA %</th><th>${isFin?'Interest exp.':'Interest'}</th><th>Net Profit</th><th>Net %</th><th>QoQ EBITDA</th><th>QoQ PAT</th></tr></thead><tbody>`+
+      Q.map((q,i)=>{
+        const p=i>0?Q[i-1]:null;
+        const nm=q.np!=null&&q.rev?(q.np/q.rev*100).toFixed(1)+'%':'—';
+        const em=q.ebitda!=null&&q.rev?(q.ebitda/q.rev*100).toFixed(1)+'%':'—';
+        const qe=p&&q.ebitda!=null&&p.ebitda!=null?pct(q.ebitda,p.ebitda):null;
+        const qp=p&&q.np!=null&&p.np!=null?pct(q.np,p.np):null;
+        return `<tr><td>${q.q}</td><td>${fmtCr(q.rev)}</td><td>${noEb?naSpan:fmtCr(q.ebitda)}</td><td>${noEb?naSpan:em}</td>
+          <td>${fmtCr(q.interest)}</td><td>${fmtCr(q.np)}</td><td>${nm}</td>
+          <td>${noEb?'—':arrow(qe)}</td><td>${arrow(qp)}</td></tr>`}).join('')+`</tbody>`;
+    $('#qNote').innerHTML='';
+  }
+
+  // intrinsic value — scenario band (bear/base/bull) + zone verdict (consistent with action bands)
+  const iv=c.iv, sc=iv.scen, mos=(iv.intrinsic-iv.price)/iv.intrinsic*100;
+  const zone=iv.zone||'';
+  const zB = zone.includes('STRONG ADD')?['b-green','Below bear-case worth — strong add']
+    : zone.includes('ACCUMULATE')?['b-green','Near the margin-of-safety buy band — accumulate']
+    : zone.includes('fair value')?['b-blue','Trading around fair value — hold']
+    : zone.includes('rich')?['b-amber','Richly valued — hold, don’t add (a quality holder doesn’t trim on price alone)']
+    : zone.includes('Expensive')?['b-red','Materially above the bull case — trim only for portfolio reasons']
+    : ['b-amber', zone||'—'];
+  const band = sc?`
+    <div class="lbl" style="margin-bottom:5px">Scenario intrinsic value <span style="color:var(--muted)">— bear · base · bull (valuation is a band, not a point)</span></div>
+    <div style="display:flex;gap:6px;text-align:center;font-size:12px">
+      <div style="flex:1;background:rgba(245,158,11,.14);padding:5px;border-radius:6px">Bear<br><b>${fmtP(sc.bear)}</b></div>
+      <div style="flex:1;background:rgba(79,157,255,.16);padding:5px;border-radius:6px;outline:1px solid rgba(79,157,255,.5)">Base<br><b>${fmtP(sc.base)}</b></div>
+      <div style="flex:1;background:rgba(34,197,94,.14);padding:5px;border-radius:6px">Bull<br><b>${fmtP(sc.bull)}</b></div>
+    </div>`:`
+    <div class="ratio-row"><span class="lbl">Est. intrinsic value</span><span class="val">${fmtP(iv.intrinsic)}</span></div>`;
+  $('#ivBox').innerHTML=`
+    ${band}
+    <div class="ratio-row" style="margin-top:8px"><span class="lbl">Current price</span><span class="val">${fmtP(iv.price)}</span></div>
+    <div class="ratio-row"><span class="lbl">vs base case</span><span class="val ${mos>=-15?(mos>15?'up':''):'down'}">${mos>=0?'+':''}${mos.toFixed(1)}%</span></div>
+    <div style="margin-top:8px"><span class="badge ${zB[0]}">${zone||(mos>15?'Undervalued':mos>=-15?'Fairly valued':'Overvalued')}</span>
+      <div class="cap" style="margin-top:4px">${zB[1]}</div></div>
+    <div class="cap" style="margin-top:8px">Method: ${iv.method}.</div>
+    ${iv.expectation?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--panel2)">
+      <div class="ratio-row"><span class="lbl">Market expectation (reverse-DCF)</span>
+        <span class="badge ${iv.expectation==='Conservative'?'b-green':iv.expectation==='Reasonable'?'b-blue':iv.expectation==='Demanding'?'b-amber':'b-red'}">${iv.expectation}</span></div>
+      <div class="cap" style="margin-top:2px">${dash(iv.expectationText)} — is the price already discounting perfection?</div></div>`:''}
+    ${renderPriceBands(iv)}`;
+
+  // debt
+  const d=c.debt;
+  $('#debtBox').innerHTML=`
+    <div class="ratio-row"><span class="lbl">Gross debt</span><span class="val">${fmtCr(d.grossDebt)}</span></div>
+    <div class="ratio-row"><span class="lbl">Net debt</span><span class="val ${d.netDebt<=0?'up':''}">${fmtCr(d.netDebt)}</span></div>
+    <div class="ratio-row"><span class="lbl">Cash &amp; equivalents</span><span class="val">${fmtCr(d.cashBal)}</span></div>
+    <div class="ratio-row"><span class="lbl">Debt / Equity</span><span class="val">${d.deRatio}</span></div>
+    <div class="ratio-row"><span class="lbl">Net debt / EBITDA</span><span class="val">${d.netDebtEbitda!=null?d.netDebtEbitda+'×':'—'}</span></div>
+    <div class="ratio-row"><span class="lbl">Interest coverage</span><span class="val">${d.interestCover}×</span></div>
+    <div class="ratio-row"><span class="lbl">CFO / debt</span><span class="val">${d.cfoDebt!=null?d.cfoDebt+'%':'—'}</span></div>
+    <div class="ratio-row"><span class="lbl">FCF / debt</span><span class="val">${d.fcfDebt!=null?d.fcfDebt+'%':'—'}</span></div>
+    <div style="margin-top:10px"><span class="badge ${d.deRatio<0.3?'b-green':d.deRatio<0.7?'b-amber':'b-red'}">
+      ${d.deRatio<0.3?'Conservative':d.deRatio<0.7?'Moderate':'Leveraged'}</span>
+      <span class="cap" style="margin-left:6px">${d.netDebt<=0?'net cash — self-funding':d.netDebtEbitda!=null&&d.netDebtEbitda<1?'&lt;1× earnings — comfortable':d.netDebtEbitda!=null&&d.netDebtEbitda>3?'&gt;3× earnings — stretched':d.netDebtEbitda!=null?d.netDebtEbitda+'× earnings — manageable':''}</span></div>`;
+
+  // forensic
+  $('#forensicBox').innerHTML=c.forensic.map(f=>{
+    const ic=f.s==='green'?'✅':f.s==='amber'?'⚠️':'🔴';
+    return `<div class="flag"><span class="ico">${ic}</span><span>${f.t}</span></div>`}).join('');
+
+  // ratios
+  $('#ratioBox').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px">`+
+    c.ratios.map(r=>`<div class="ratio-row"><span class="lbl">${r.k}</span><span class="val">${r.v}</span></div>`).join('')+`</div>`;
+
+  // policy
+  $('#policyBox').innerHTML=c.policy.map(p=>`<div class="flag"><span class="ico">▸</span><span>${p}</span></div>`).join('');
+
+  // personas
+  const personas=[
+    {k:"buffett",n:"Warren Buffett",s:"Owner-mindset · moats · buy wonderful businesses"},
+    {k:"munger",n:"Charlie Munger",s:"Invert · avoid stupidity · quality over cheapness"},
+    {k:"graham",n:"Benjamin Graham",s:"Margin of safety · defensive · price discipline"},
+    {k:"lynch",n:"Peter Lynch",s:"Invest in what you know · growth at reasonable price"},
+    {k:"dalio",n:"Ray Dalio",s:"Machines & regimes · diversification · risk-parity"}
+  ];
+  // decision scorecard + confidence + scenarios
+  if(c.scorecard){ $('#scorecardTitle').style.display='block'; $('#scorecardCard').innerHTML=renderScorecard(c, c.research); }
+  else { $('#scorecardTitle').style.display='none'; $('#scorecardCard').innerHTML=''; }
+
+  // sector lens (how this sector must be read)
+  if(c.sectorLens){ $('#sectorLensTitle').style.display='block'; $('#sectorLensCard').innerHTML='<div class="card">'+renderSectorLens(c)+'</div>'; }
+  else { $('#sectorLensTitle').style.display='none'; $('#sectorLensCard').innerHTML=''; }
+
+  // shareholding pattern (NSE)
+  renderShareholding(c);
+
+  // forensic ratio analysis (tabbed)
+  renderForensic(c);
+
+  // corporate calendar (NSE) — only shown when present
+  const ca=c.corpActions||[], an=c.announcements||[];
+  if(ca.length||an.length){
+    $('#corpTitle').style.display='block';
+    const list=(items,fmt)=>items.length? items.map(fmt).join('') : empty('None reported.');
+    const annRow=x=>{
+      const meta=x.date?` <span style="color:var(--muted)">· ${x.date}</span>`:'';
+      const tip=x.text?` title="${x.text.replace(/"/g,'&quot;').slice(0,300)}"`:'';
+      const label=`${x.subject}${meta}`;
+      return `<div class="flag"><span class="ico">📣</span><span>${x.url
+        ? `<a href="${x.url}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none"${tip}>${x.subject} ↗</a>${meta}`
+        : `<span${tip}>${x.subject}</span>${meta}`}${x.text?`<div class="cap" style="margin-top:2px;line-height:1.35">${x.text.length>160?x.text.slice(0,160)+'…':x.text}</div>`:''}</span></div>`;
+    };
+    // dedupe repeated corporate actions (e.g. a bank filing many identical "Interest Payment/Redemption")
+    const caDe=(()=>{const seen={},out=[];ca.forEach(x=>{const k=(x.subject||'—')+'|'+(x.exDate||'');if(!seen[k]){seen[k]={...x,count:1};out.push(seen[k]);}else seen[k].count++;});return out;})();
+    const allInterest=caDe.length>0 && caDe.every(x=>/interest payment|redemption/i.test(x.subject||''));
+    $('#corpGrid').innerHTML=`
+      <div class="card"><h3>Corporate Actions</h3>${caDe.length?caDe.map(x=>`<div class="flag"><span class="ico">💠</span><span>${x.subject}${x.count>1?` <span class="badge b-blue" style="padding:1px 6px">×${x.count}</span>`:''}${x.exDate?` <span style="color:var(--muted)">· ${x.exDate}</span>`:''}</span></div>`).join(''):empty('None reported.')}${allInterest?`<div class="cap" style="margin-top:8px">Only routine debt-servicing events (bond interest / redemption) on record — no dividend, split or bonus in this window.</div>`:''}</div>
+      <div class="card"><h3>Recent Announcements <span style="font-size:10px;color:var(--muted);font-weight:400">— click ↗ to open the filing</span></h3>${list(an,annRow)}</div>`;
+  }else{
+    $('#corpTitle').style.display='none'; $('#corpGrid').innerHTML='';
+  }
+
+  $('#ptabs').innerHTML=personas.map(p=>`<div class="ptab ${p.k===activePersona?'active':''}" data-p="${p.k}">${p.n}</div>`).join('');
+  $('#ptabs').querySelectorAll('.ptab').forEach(t=>t.onclick=()=>{activePersona=t.dataset.p;renderCompany(currentData)});
+  const pdef=personas.find(p=>p.k===activePersona), pv=c.personas[activePersona];
+  const vc=pv.vc==='green'?'b-green':pv.vc==='amber'?'b-amber':pv.vc==='red'?'b-red':'b-blue';
+  $('#personaBody').innerHTML=`
+    <div class="who">${pdef.n}</div>
+    <div class="style">${pdef.s}</div>
+    <div>${pv.text}</div>
+    <div class="verdict ${vc}">Verdict: ${pv.verdict}</div>`;
+}
+
+$('#foot').innerHTML=`
+  <b>Data sources.</b> Live price, corporate calendar (actions, board meetings, announcements) and <b>shareholding pattern + promoter pledge</b> (promoter / FII / DII / retail split parsed from NSE's SEBI XBRL filings): <b>NSE India</b> APIs (used when reachable — needs a residential IP). Financial statements (cash flow, capex, quarterly results, balance sheet, ratios): <b>Yahoo Finance</b>, which mirrors NSE/BSE filings. When the backend can't reach NSE it uses Yahoo for price too, and when the backend is offline the page falls back to four bundled sample companies.<br><br>
+  <b>Run it:</b> <code>python server.py</code> then open <code>http://127.0.0.1:5000</code>. Type any NSE symbol (e.g. RELIANCE, TCS, HDFCBANK) or add <code>.BO</code> for BSE.<br><br>
+  <b>Analysis notes.</b> Intrinsic value is a simple 2-stage DCF on free cash flow (earnings-power fallback when FCF is weak) — a rough estimate, not a target price. Forensic flags and the five investor personas (Buffett, Munger, Graham, Lynch, Dalio) are heuristics generated from the real ratios shown above. Everything here is for information and education, <b>not investment advice</b>.`;
+
+/* ============================================================
+   EQUITY HOLDINGS  — Zerodha CSV × audited framework Excel
+   ============================================================ */
+let FRAMEWORK=null, HOLDINGS=[], selectedSym=null, holdFilter='all', currentFname='';
+async function saveHoldings(){
+  if(!HOLDINGS.length) return;
+  const payload={ savedAt:new Date().toISOString(), fname:currentFname,
+    holdings: HOLDINGS.map(h=>({symbol:h.symbol,qty:h.qty,avg:h.avg,ltp:h.ltp,curVal:h.curVal,
+      invested:h.invested,pnl:h.pnl,pnlPct:h.pnlPct,weight:h.weight,
+      live:h.live?{verdict:h.live.verdict,cls:h.live.cls,label:h.live.label,conviction:h.live.conviction,notes:h.live.notes,mos:h.live.mos,counts:h.live.counts,concerns:h.live.concerns}:null,
+      research:h.research||null }))};
+  try{ const base=(location.origin.startsWith('http')?location.origin:'http://127.0.0.1:5000');
+    await fetch(base+'/api/holdings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  }catch(e){}
+}
+
+// view switching
+document.querySelectorAll('.navtab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.navtab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  const v=t.dataset.view;
+  $('#viewDashboard').style.display = v==='dashboard'?'block':'none';
+  $('#viewHoldings').style.display  = v==='holdings'?'block':'none';
+  $('#searchWrap').style.visibility = v==='dashboard'?'visible':'hidden';
+  if(v==='holdings') initHoldings();
+});
+
+let fwLoaded=false;
+async function initHoldings(){
+  if(fwLoaded) return; fwLoaded=true;
+  try{
+    FRAMEWORK = await apiGet('/api/framework');
+  }catch(e){ FRAMEWORK={available:false,reason:'backend not reachable'}; }
+  // minimal, non-confusing note (no legacy "framework loaded / N holdings" count)
+  const b=$('#fwBanner');
+  b.style.display='block';
+  b.style.background='transparent'; b.style.border='none'; b.style.color='var(--muted)';
+  b.style.padding='0 2px'; b.style.fontSize='11.5px';
+  b.innerHTML=`Each verdict combines the live <b>quant</b> engine + a <b>research</b> (news/policy) pass; the older Excel is a dated reference only. Click ↻ Refresh &amp; 🔬 Research for current calls. <b>Not investment advice.</b>`;
+  // restore the last saved portfolio so reopening shows the last record
+  if(!HOLDINGS.length){
+    try{
+      const saved=await apiGet('/api/holdings');
+      if(saved&&saved.holdings&&saved.holdings.length){
+        const fb=(FRAMEWORK&&FRAMEWORK.bySymbol)||{};
+        HOLDINGS=saved.holdings.map(h=>({...h, fw:fb[h.symbol]||null, company:null}));
+        currentFname=saved.fname||'';
+        $('#uploadCard').innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+          <div><span class="up">✓ restored ${HOLDINGS.length} holdings</span> ${saved.fname?'from '+saved.fname:''} <span style="color:var(--muted)">· last saved ${saved.savedAt?new Date(saved.savedAt).toLocaleString('en-IN'):''} · click Refresh for latest</span></div>
+          <button class="btn" onclick="document.getElementById('csvInput').click()">↻ Upload a different CSV</button></div>`;
+        $('#holdingsResult').style.display='block';
+        renderPortfolio();
+      }
+    }catch(e){}
+  }
+}
+
+// ---- dropzone / file input ----
+const dz=$('#dropzone'), csvInput=$('#csvInput');
+if(dz){
+  dz.onclick=()=>csvInput.click();
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag')});
+  dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+  dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');if(e.dataTransfer.files[0])readCsv(e.dataTransfer.files[0]);});
+  csvInput.onchange=()=>{if(csvInput.files[0])readCsv(csvInput.files[0]);};
+}
+function readCsv(file){
+  const r=new FileReader();
+  r.onload=()=>{ try{ parseHoldings(r.result, file.name); }catch(e){ $('#csvMsg').innerHTML=`<span class="down">Could not parse: ${e.message}</span>`; } };
+  r.readAsText(file);
+}
+
+// ---- flexible Zerodha CSV parser ----
+function splitCsvLine(line){
+  const out=[]; let cur='',q=false;
+  for(let i=0;i<line.length;i++){const c=line[i];
+    if(c==='"'){ if(q&&line[i+1]==='"'){cur+='"';i++;} else q=!q; }
+    else if(c===','&&!q){ out.push(cur); cur=''; }
+    else cur+=c;
+  }
+  out.push(cur); return out.map(s=>s.trim());
+}
+function parseHoldings(text, fname){
+  const lines=text.split(/\r?\n/).filter(l=>l.trim()!=='');
+  // find header row: contains a symbol-ish column and a quantity column
+  let hi=-1, header=[];
+  for(let i=0;i<Math.min(lines.length,15);i++){
+    const cols=splitCsvLine(lines[i]).map(c=>c.toLowerCase());
+    const hasSym=cols.some(c=>/symbol|instrument|tradingsymbol|scrip|stock/.test(c));
+    const hasQty=cols.some(c=>/qty|quantity/.test(c));
+    if(hasSym&&hasQty){ hi=i; header=splitCsvLine(lines[i]); break; }
+  }
+  if(hi<0) throw new Error('couldn’t find a header row with Symbol and Quantity columns. Is this a Zerodha holdings export?');
+  const H=header.map(h=>h.toLowerCase());
+  const find=(...pats)=>{ for(const p of pats){ const idx=H.findIndex(h=>p.test(h)); if(idx>=0) return idx; } return -1; };
+  const iSym=find(/^symbol$/,/instrument/,/tradingsymbol/,/^scrip/,/symbol/,/stock/);
+  const iQty=find(/quantity available/,/qty\.?\b/,/^qty/,/quantity/);
+  const iAvg=find(/average price/,/avg\.? cost/,/avg\.? price/,/average cost/,/buy average/,/avg/);
+  const iLtp=find(/\bltp\b/,/last price/,/previous closing/,/close price/,/market price/,/cur\.? price/);
+  const iVal=find(/cur\.? val/,/current value/,/market value/,/mkt value/);
+  const iPnl=find(/unrealized p&l\b/,/\bp&l\b/,/pnl/,/profit/);
+  const iQtyLong=find(/long term/,/quantity long/);
+  const num=s=>{ if(s==null) return null; const v=parseFloat(String(s).replace(/[^0-9.\-]/g,'')); return isNaN(v)?null:v; };
+  const rows=[];
+  for(let i=hi+1;i<lines.length;i++){
+    const c=splitCsvLine(lines[i]);
+    const sym=(c[iSym]||'').toUpperCase().replace(/[^A-Z0-9&\-]/g,'');
+    if(!sym||/^total/i.test(c[iSym]||'')) continue;
+    const qty=num(c[iQty]); if(qty===null) continue;
+    rows.push({
+      symbol:sym, qty, avg:iAvg>=0?num(c[iAvg]):null, ltp:iLtp>=0?num(c[iLtp]):null,
+      curVal:iVal>=0?num(c[iVal]):null, pnl:iPnl>=0?num(c[iPnl]):null,
+      qtyLong:iQtyLong>=0?num(c[iQtyLong]):null
+    });
+  }
+  if(!rows.length) throw new Error('no holding rows found under the header.');
+  // merge framework
+  const fb=(FRAMEWORK&&FRAMEWORK.bySymbol)||{};
+  rows.forEach(h=>{
+    h.fw = fb[h.symbol] || null;
+    if(h.ltp==null && h.avg!=null && h.curVal!=null && h.qty) h.ltp=h.curVal/h.qty;
+    if(h.curVal==null && h.ltp!=null) h.curVal=h.ltp*h.qty;
+    h.invested = (h.avg!=null)?h.avg*h.qty:null;
+    if(h.pnl==null && h.curVal!=null && h.invested!=null) h.pnl=h.curVal-h.invested;
+    h.pnlPct = (h.invested)? (h.pnl/h.invested*100):null;
+    h.live=null;
+  });
+  HOLDINGS=rows; holdFilter='all'; selectedSym=null; currentFname=fname;
+  // collapse the upload card into a compact bar
+  $('#uploadCard').innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+    <div><span class="up">✓ ${rows.length} holdings loaded</span> from <b>${fname}</b> · ${rows.filter(h=>h.fw).length} matched to your framework
+      <span style="color:var(--muted)">· nothing uploaded to any server</span></div>
+    <button class="btn" onclick="document.getElementById('csvInput').click()">↻ Upload a different CSV</button></div>`;
+  $('#holdingsResult').style.display='block';
+  renderPortfolio();
+  saveHoldings();
+}
+
+// ---- verdict helpers ----
+// FINAL verdict = synthesis. The RESEARCH layer (qual+policy+news, reviewed) is the call
+// whenever it exists — changed or not. Quant is a visible input, not the headline.
+// Fall back to quant only when there's no research yet, then the dated Excel.
+function isLive(h){ return !!(h&&h.live&&h.live.verdict); }
+function effVerdict(h){
+  if(h&&h.research&&h.research.revisedVerdict) return h.research.revisedVerdict;
+  return isLive(h)? h.live.verdict : (h&&h.fw&&h.fw.verdict)||null;
+}
+// true when the quant engine's lean differs from the final (research) verdict — worth a look
+function verdictDiverges(h){
+  return !!(h&&h.research&&h.research.revisedVerdict&&isLive(h)
+    && verdictClass(h.research.revisedVerdict)!==verdictClass(h.live.verdict));
+}
+// MATERIAL issue — genuinely worth a human look. The reliable source is the RESEARCH layer
+// (real news / policy / governance / business problems). The quant contributes ONLY when it
+// shows a SEVERE fraud/distress signature (quant EXIT) that research hasn't already caught.
+// Mild ratio flags (a screen) do NOT make something a material issue.
+function materialDivergence(h){
+  if(!h) return false;
+  const rC = h.research&&h.research.revisedVerdict ? verdictClass(h.research.revisedVerdict) : null;
+  // 1) research found a genuine issue
+  if(rC==='v-exit'||rC==='v-sell'||rC==='v-trim') return true;
+  // 2) the numbers scream (severe → quant EXIT) while research is benign — double-check
+  if(isLive(h) && verdictClass(h.live.verdict)==='v-exit' && (rC==='v-hold'||rC==='v-add'||!rC)) return true;
+  return false;
+}
+// what fed the final verdict: Q+R (quant+research), Q (quant only), dated (Excel), or none
+function verdictSource(h){
+  if(h&&h.research) return 'Q+R';
+  if(isLive(h)) return 'Q';
+  if(h&&h.fw&&h.fw.verdict) return 'dated';
+  return 'none';
+}
+function verdictClass(v){ if(!v) return 'v-none'; const t=v.toLowerCase();
+  if(t.includes('exit')) return 'v-exit'; if(t.includes('sell')) return 'v-sell';
+  if(t.includes('trim')) return 'v-trim'; if(t.includes('add')||t.includes('buy')||t.includes('accumulate')) return 'v-add';
+  return 'v-hold'; }
+function verdictRank(v){ const c=verdictClass(v); return {'v-exit':0,'v-sell':1,'v-trim':2,'v-hold':3,'v-add':4,'v-none':5}[c]; }
+function pips(n){ n=Math.round(n||0); let s='<span class="pips">'; for(let i=1;i<=5;i++) s+=`<span class="pip ${i<=n?'on':''}"></span>`; return s+'</span>'; }
+const fmtRs=n=>(n==null||isNaN(n))?'—':'₹'+Math.round(n).toLocaleString('en-IN');
+const fmtRs2=n=>(n==null||isNaN(n))?'—':'₹'+Number(n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+// ---- portfolio summary + table ----
+function renderPortfolio(){
+  const H=HOLDINGS;
+  const inv=H.reduce((a,h)=>a+(h.invested||0),0), cur=H.reduce((a,h)=>a+(h.curVal||0),0);
+  const pnl=cur-inv, pnlPct=inv?pnl/inv*100:0;
+  H.forEach(h=>h.weight=cur?(h.curVal||0)/cur*100:0);
+  // action tally by value (uses live verdict once refreshed, else dated Excel)
+  const anyLive=H.some(isLive);
+  const buckets={'v-exit':0,'v-sell':0,'v-trim':0,'v-hold':0,'v-add':0,'v-none':0};
+  H.forEach(h=>buckets[verdictClass(effVerdict(h))]+=(h.curVal||0));
+  const val=k=>cur?(buckets[k]/cur*100):0;
+  $('#portSummary').innerHTML=[
+    {t:'Invested',v:fmtRs(inv),cap:`${H.length} holdings`},
+    {t:'Current value',v:fmtRs(cur),cap:'from your CSV'},
+    {t:'Unrealised P&L',v:(pnl>=0?'+':'')+fmtRs(pnl),cap:`${pnlPct>=0?'+':''}${pnlPct.toFixed(1)}%`,cls:pnl>=0?'up':'down'},
+    {t:'Action-needed weight',v:(val('v-exit')+val('v-sell')+val('v-trim')).toFixed(0)+'%',cap:'EXIT + TRIM by value'}
+  ].map(x=>`<div class="card kpi"><h3>${x.t}</h3><div class="v ${x.cls||''}">${x.v}</div><div class="cap">${x.cap}</div></div>`).join('');
+  // verdict distribution bar (by value)
+  const segs=[['v-exit','EXIT','#f87171'],['v-sell','SELL','#f87171'],['v-trim','TRIM','#fbbf24'],['v-hold','HOLD','#7db8ff'],['v-add','ADD','#4ade80'],['v-none','Not covered','#64748b']]
+    .map(([k,lbl,col])=>({k,lbl,col,pct:val(k),cnt:H.filter(h=>verdictClass(effVerdict(h))===k).length})).filter(s=>s.pct>0);
+  $('#verdictBar').innerHTML=`<h3>Verdict distribution <span style="font-size:11px;color:var(--muted);font-weight:400">— by portfolio value · ${anyLive?'live':'dated (Excel) — click Refresh for live'}</span></h3>
+    <div style="display:flex;height:18px;border-radius:6px;overflow:hidden;margin:8px 0 10px">${segs.map(s=>`<div title="${s.lbl} ${s.pct.toFixed(1)}%" style="width:${s.pct}%;background:${s.col}"></div>`).join('')}</div>
+    <div class="legend" style="margin-top:0">${segs.map(s=>`<span><i class="dot" style="background:${s.col}"></i>${s.lbl} · ${s.pct.toFixed(1)}% (${s.cnt})</span>`).join('')}</div>`;
+  // filter chips
+  const fdefs=[['all','All',H.length],
+    ['v-exit','Exit',H.filter(h=>['v-exit','v-sell'].includes(verdictClass(effVerdict(h)))).length],
+    ['v-trim','Trim',H.filter(h=>verdictClass(effVerdict(h))==='v-trim').length],
+    ['v-hold','Hold',H.filter(h=>verdictClass(effVerdict(h))==='v-hold').length],
+    ['v-add','Add',H.filter(h=>verdictClass(effVerdict(h))==='v-add').length],
+    ['diverge','⚡ Material issue',H.filter(materialDivergence).length],
+    ['v-none','Not covered',H.filter(h=>!h.fw&&!isLive(h)).length]].filter(f=>f[2]>0);
+  $('#holdFilters').innerHTML=fdefs.map(([k,lbl,n])=>`<button class="rtab ${holdFilter===k?'active':''}" data-f="${k}"${k==='diverge'?' style="border-color:#fbbf24;color:#fbbf24"':''}>${lbl} <span class="cnt">${n}</span></button>`).join('');
+  $('#holdFilters').querySelectorAll('.rtab').forEach(b=>b.onclick=()=>{holdFilter=b.dataset.f;renderPortfolio();});
+  // refresh + export controls
+  $('#actFilter').innerHTML=`· sorted by final verdict &nbsp; <button class="btn btn-primary" id="btnRefresh">↻ Refresh quant (all)</button> <button class="btn" id="btnPolicy">🔬 Research (news · policy)</button> <button class="btn" id="btnExport">⬇ Download Excel</button> <span id="refProg"></span>`;
+  $('#btnRefresh').onclick=refreshAllLive;
+  $('#btnPolicy').onclick=applyPolicy;
+  $('#btnExport').onclick=exportExcel;
+  renderHoldTable();
+}
+// ---- policy/research overlay (generated by a Claude web-research pass) ----
+let RESEARCH=null;
+async function applyPolicy(){
+  const btn=$('#btnPolicy'); btn.disabled=true; btn.style.opacity='.6'; btn.textContent='🔬 Applying…';
+  try{
+    RESEARCH=await apiGet('/api/research');
+    const rb=(RESEARCH&&RESEARCH.bySymbol)||{};
+    let changed=0, tagged=0;
+    HOLDINGS.forEach(h=>{ const r=rb[h.symbol]; h.research=r||null; if(r){ tagged++; if(r.verdictChanged) changed++; } });
+    renderPortfolio();
+    if(selectedSym) renderDetail(HOLDINGS.find(h=>h.symbol===selectedSym));
+    const mi=HOLDINGS.filter(materialDivergence).length;
+    $('#refProg').innerHTML = tagged
+      ? `<span style="font-size:12px;color:#4ade80">✓ Applied research from ${RESEARCH.asOf||'the last pass'} — ${tagged} holdings, ${changed} verdict change(s), ${mi} material issue${mi!==1?'s':''}.</span> <span style="font-size:11px;color:var(--muted)">Loads the last saved research (instant); to fetch fresh news ask Claude to “run research”.</span>`
+      : `<span style="font-size:11px;color:var(--muted)">No research overlay found — ask Claude in chat to “run research”.</span>`;
+    saveHoldings();
+  }catch(e){ $('#refProg').innerHTML=`<span class="down" style="font-size:11px">Research overlay not reachable.</span>`; }
+  btn.disabled=false; btn.style.opacity='1'; btn.textContent='🔬 Research (news · policy)';
+}
+function renderHoldTable(){
+  let H=[...HOLDINGS].sort((a,b)=>{
+    const ra=verdictRank(effVerdict(a)), rb=verdictRank(effVerdict(b));
+    if(ra!==rb) return ra-rb; return (b.weight||0)-(a.weight||0);
+  });
+  if(holdFilter!=='all') H=H.filter(h=>{
+    if(holdFilter==='diverge') return materialDivergence(h);
+    const cl=verdictClass(effVerdict(h));
+    return holdFilter==='v-exit'?(cl==='v-exit'||cl==='v-sell'):cl===holdFilter; });
+  $('#holdTable').innerHTML=`<thead><tr>
+     <th>Symbol</th><th>Sector</th><th style="text-align:right">Qty</th><th style="text-align:right">Avg</th>
+     <th style="text-align:right">LTP</th><th style="text-align:right">Value</th><th style="text-align:right">Wt%</th>
+     <th style="text-align:right">P&L%</th><th>Verdict (live)</th><th>Conv</th><th>Audited<br>(Excel · dated)</th></tr></thead><tbody>`+
+    H.map(h=>{
+      const fw=h.fw||{}; const v=fw.verdict;
+      return `<tr class="htr ${selectedSym===h.symbol?'sel':''}" data-s="${h.symbol}">
+        <td class="rn">${h.symbol}</td>
+        <td style="color:var(--muted)">${dash(fw.sector||'')}</td>
+        <td class="val">${h.qty}</td>
+        <td class="val">${fmtRs2(h.avg)}</td>
+        <td class="val">${fmtRs2(h.ltp)}</td>
+        <td class="val">${fmtRs(h.curVal)}</td>
+        <td class="val">${(h.weight||0).toFixed(1)}</td>
+        <td class="val ${h.pnlPct>=0?'up':'down'}">${h.pnlPct!=null?(h.pnlPct>=0?'+':'')+h.pnlPct.toFixed(1)+'%':'—'}</td>
+        <td>${(()=>{ const fv=effVerdict(h), src=verdictSource(h);
+             if(src==='none') return `<span class="vbadge v-none">not covered</span>`;
+             if(src==='dated') return `<span style="font-size:10px;color:var(--muted)">click Refresh →</span>`;
+             const cls=verdictClass(fv);
+             const tag=src==='Q+R'
+               ? `<span title="quant + research/policy synthesis" style="font-size:9px;color:#7db8ff;font-weight:700">Q+R</span>`
+               : `<span title="quant only — click Research for news/policy" style="font-size:9px;color:var(--muted)">Q</span>`;
+             const extra=materialDivergence(h)
+               ? ` <span title="material contradiction — an issue (quality/forensic or sector/policy/news), not just rich valuation. Review." style="font-size:9px;color:#fbbf24">⚡ review</span>`
+               : (isLive(h)?` <span style="font-size:9px;color:var(--muted)">${h.live.label}</span>`:'');
+             return `<span class="vbadge ${cls}">${fv}</span> ${tag}${extra}`;
+           })()}</td>
+        <td>${isLive(h)?pips(h.live.conviction)+' <span style="font-size:9px;color:var(--muted)">live</span>':'<span style="color:var(--muted)">—</span>'}</td>
+        <td>${v?`<span class="vbadge ${verdictClass(v)}" style="opacity:.7" title="your Excel's dated call — reference only">${v}</span>${fw.conviction?' '+pips(fw.conviction):''}${fw.basis?` <span style="font-size:9px;color:var(--muted)">${fw.basis}</span>`:''}`:'<span style="color:var(--muted)">not in Excel</span>'}</td>
+      </tr>`;
+    }).join('')+`</tbody>`;
+  $('#holdTable').querySelectorAll('.htr').forEach(tr=>tr.onclick=()=>{
+    selectedSym=tr.dataset.s; renderHoldTable();
+    const h=HOLDINGS.find(h=>h.symbol===selectedSym); renderDetail(h);
+    $('#detailTitle').innerHTML=`Holding detail — <b>${selectedSym}</b>`;
+    $('#holdDetail').scrollIntoView({behavior:'smooth',block:'center'});
+  });
+}
+
+// ---- detail panel ----
+function renderDetail(h){
+  if(!h){ return; }
+  const fw=h.fw; const box=$('#holdDetail');
+  if(!fw){
+    const live=h.live;
+    box.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
+      <div><b style="font-size:16px">${h.symbol}</b> <span class="vbadge v-none">not in Excel</span>
+        ${live?`&nbsp;<span class="vbadge ${live.cls}">${live.verdict} (live)</span> ${pips(live.conviction)}`:''}</div>
+      <button class="btn" onclick="openLive('${h.symbol}')">Open live analysis →</button></div>
+      <div style="margin-top:6px">Position: <b>${h.qty}</b> @ avg ${fmtRs2(h.avg)} · LTP ${fmtRs2(h.ltp)} · value ${fmtRs(h.curVal)} · P&L <span class="${h.pnlPct>=0?'up':'down'}">${h.pnlPct!=null?(h.pnlPct>=0?'+':'')+h.pnlPct.toFixed(1)+'%':'—'}</span></div>
+      ${live?`<div style="margin-top:8px;padding:8px 10px;background:var(--panel2);border-radius:8px">
+         <b>Independent live verdict:</b> <span class="vbadge ${live.cls}">${live.verdict}</span> · conviction ${live.conviction}/5 · ${live.label}. ${live.notes.join(' ')}
+         <div class="cap">Generated by the app from the framework method (valuation/MoS · forensic engine · four-lens committee · institutional flow). This stock isn't in your Excel — so this is the app's own reading, live-dated.</div></div>
+         ${renderLiveForensic(h)}${(h.company&&h.company.scorecard)?renderScorecard(h.company,h.research):''}${renderCommittee(h.company)}${renderSectorLens(h.company)}`
+        :`<div class="cap" style="margin-top:8px">Not in your audited Excel. Click <b>↻ Refresh live status</b> above (or “Open live analysis”) to generate an independent verdict from live data.</div>`}
+      ${h.research?renderPolicyBlock(h):''}`;
+    return;
+  }
+  const pol=(fw.policies||[]).map(p=>`<div class="flag"><span class="ptag pt-${(p.tag||'').toLowerCase().split(' ')[0]}" style="flex:0 0 auto">${p.tag}</span><span>${p.fact}${p.logic?`<div class="cap" style="margin-top:2px">${p.logic}</div>`:''}</span></div>`).join('');
+  const risks=(fw.risks||[]).map(r=>`<div class="flag"><span class="ico">⚠️</span><span>${r.risk} <span style="color:var(--muted)">(${r.type}; L=${r.L}/I=${r.I})</span></span></div>`).join('')||'<div class="cap">None specifically tagged.</div>';
+  const v=fw.valuation||{};
+  const hasOldIV=(v.baseIV!=null||v.bearIV!=null||v.bullIV!=null);
+  const inBandTxt=(v.inBand&&v.inBand.toLowerCase()!=='see note')?v.inBand:'';
+  const mosBand=v.mosBand||fw.buyBand||'';
+  const buyNote=v.buyNote||fw.actionNow||'';
+  const val=(mosBand||buyNote||hasOldIV)?`
+     ${mosBand?`<div class="ratio-row"><span class="lbl">MoS buy band <span class="cap">— audited</span></span><span class="val">${dash(mosBand)}</span></div>`:''}
+     ${inBandTxt?`<div class="ratio-row"><span class="lbl">In buy band now?</span><span class="val">${dash(inBandTxt)}</span></div>`:''}
+     ${v.conv?`<div class="ratio-row"><span class="lbl">Conviction (audited)</span><span class="val">${dash(v.conv)}/5</span></div>`:''}
+     ${hasOldIV?`<div class="ratio-row"><span class="lbl">IV band (bear / base / bull)</span><span class="val">${fmtRs(v.bearIV)} / ${fmtRs(v.baseIV)} / ${fmtRs(v.bullIV)}</span></div>`:''}
+     ${buyNote?`<div class="flag" style="margin-top:5px"><span class="ico">🎯</span><span><b>Buy note:</b> ${dash(buyNote)}</span></div>`:''}
+     ${v.reverseDCF?`<div class="cap" style="margin-top:4px">${dash(v.reverseDCF)}</div>`:''}
+     <div class="cap" style="margin-top:4px;color:var(--muted)">From your audited master (Valuation_ALL). The live model band is in “Open live analysis”.</div>`
+     :'<div class="cap">No audited MoS buy band for this holding in the current master (e.g. a full-exit name) — see the live model band via “Open live analysis”.</div>';
+  const tax=fw.tax?`<div class="flag"><span class="ico">🧾</span><span><b>${fw.tax.action}</b> — ${fw.tax.note} <span style="color:var(--muted)">(unrealised ${fmtRs(fw.tax.loss)}, ${fw.tax.period})</span></span></div>`:'';
+  const exit=(fw.exit||[]).map(e=>`<div class="flag"><span class="ico">▸</span><span><b>${e.action}</b> ${e.status?`<span class="badge b-green">${e.status}</span>`:''} — ${e.notes} <span style="color:var(--muted)">[${e.priceLevel}]</span></span></div>`).join('');
+  const q=(fw.quarterly||[]).map(x=>`<div class="flag"><span class="ico">📊</span><span>${x.quarter}: ${x.thesis} · ${x.revDelta} rev / ${x.patDelta} PAT · <b>${x.verdict}</b></span></div>`).join('');
+  const live=h.live;
+  box.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
+      <div><b style="font-size:16px">${h.symbol}</b> <span style="color:var(--muted)">${dash(fw.sector)}</span>
+        &nbsp;<span class="vbadge ${verdictClass(effVerdict(h))}" title="final synthesised verdict">${dash(effVerdict(h))}</span>
+        <span style="font-size:10px;color:${h.research?'#7db8ff':'var(--muted)'};font-weight:700">${h.research?'Q+R final':(isLive(h)?'quant only':'dated')}</span>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">
+          ${isLive(h)?`Quant lean: <span class="vbadge ${h.live.cls}" style="opacity:.85">${h.live.verdict}</span> · `:''}${h.research?`Research: <span class="vbadge ${verdictClass(h.research.revisedVerdict)}" style="opacity:.85">${h.research.revisedVerdict}</span> · `:''}Audited (Excel, dated): <span class="vbadge ${verdictClass(fw.verdict)}" style="opacity:.6">${dash(fw.verdict)}</span>${materialDivergence(h)?' <span style="color:#fbbf24">⚡ material issue — numbers &amp; research disagree on a real risk; your judgement call</span>':(verdictDiverges(h)?' <span style="color:var(--muted)">(quant leans '+h.live.verdict+' on valuation — you hold winners, so noted only)</span>':'')}</div></div>
+      <button class="btn" onclick="openLive('${h.symbol}')">Open live analysis →</button>
+    </div>
+    <div style="margin-top:6px">Position: <b>${h.qty}</b> @ avg ${fmtRs2(h.avg)} · LTP ${fmtRs2(h.ltp)} · value ${fmtRs(h.curVal)} · P&L <span class="${h.pnlPct>=0?'up':'down'}">${h.pnlPct!=null?(h.pnlPct>=0?'+':'')+h.pnlPct.toFixed(1)+'%':'—'}</span></div>
+    ${live?`<div style="margin-top:8px;padding:8px 10px;background:var(--panel2);border-radius:8px">
+       <b>Live data signal:</b> <span class="vbadge ${live.cls}">${live.label}</span> — leans <b>${live.action}</b>. ${live.notes.join(' ')}
+       <div class="cap">Auto-computed from current data (price, valuation/MoS, forensic score, debt, pledge, institutional flow). A prompt to review — not a replacement for the audited verdict.</div></div>
+       ${renderLiveForensic(h)}${(h.company&&h.company.scorecard)?renderScorecard(h.company,h.research):''}${renderCommittee(h.company)}${renderSectorLens(h.company)}`:''}
+    ${h.research?renderPolicyBlock(h):''}
+    <div class="grid cols-2" style="margin-top:12px;gap:12px">
+      <div><h3 style="margin-bottom:6px">Rationale / trigger</h3><div style="font-size:12.5px">${dash(fw.rationale)}</div>
+        <h3 style="margin:12px 0 6px">Valuation</h3>${val}${(()=>{
+          const cfr=(h.company&&h.company.frameworkRead)||null;
+          if(!cfr) return `<div class="cap" style="margin-top:8px">↻ Run <b>Refresh</b> to compute the live framework read (verdict · conviction · MoS band · buy note) from current data — it updates each quarter as results are filed.</div>`;
+          return `<div style="margin-top:10px;padding-top:8px;border-top:1px dashed var(--panel2)">
+            <div class="lbl">⚙️ Live framework read <span class="cap">— recomputed from current data · updates each quarter on Refresh</span></div>
+            <div class="ratio-row"><span class="lbl">Verdict · conviction</span><span class="val"><span class="vbadge ${verdictClass(cfr.verdict)}">${cfr.verdict}</span> · ${cfr.conviction}/5 <span class="cap">[${cfr.basis}]</span></span></div>
+            <div class="ratio-row"><span class="lbl">Fair IV (bear–bull)</span><span class="val">${fmtRs(cfr.fairIV)} <span class="cap">${cfr.bearIV!=null?'('+fmtRs(cfr.bearIV)+'–'+fmtRs(cfr.bullIV)+')':''}</span></span></div>
+            <div class="ratio-row"><span class="lbl">MoS buy band (live)</span><span class="val">${dash(cfr.mosBuyBand)}</span></div>
+            <div class="ratio-row"><span class="lbl">Long-term qualify</span><span class="val" style="font-size:11px;text-align:right;max-width:230px">${dash(cfr.ltQualify)}</span></div>
+            <div class="flag" style="margin-top:5px"><span class="ico">🎯</span><span><b>Buy note (live):</b> ${dash(cfr.buyNote)}</span></div>
+            <div class="cap" style="margin-top:3px">${dash(cfr.note)}</div></div>`;
+        })()}</div>
+      <div><h3 style="margin-bottom:6px">Policy exposure</h3><div>${pol||'<span class="cap">None tagged.</span>'}</div>
+        <h3 style="margin:12px 0 6px">Risks</h3>${risks}</div>
+    </div>
+    ${tax?`<h3 style="margin:12px 0 6px">Tax / loss set-off</h3>${tax}`:''}
+    ${exit?`<h3 style="margin:12px 0 6px">Execution plan</h3>${exit}`:''}
+    ${q?`<h3 style="margin:12px 0 6px">Quarterly thesis</h3>${q}`:''}`;
+}
+function openLive(sym){
+  document.querySelector('.navtab[data-view="dashboard"]').click();
+  select(sym);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function renderPolicyBlock(h){
+  const r=h.research; if(!r) return '';
+  const src=(r.sources||[]).map(s=>`<a href="${s.url}" target="_blank" rel="noopener">${s.title}</a>`).join(' · ');
+  const chg=r.verdictChanged
+    ? `<span class="vbadge ${verdictClass(r.fromVerdict)}">${r.fromVerdict}</span> <b>→</b> <span class="vbadge ${verdictClass(r.revisedVerdict)}">${r.revisedVerdict}</span>`
+    : `<span class="vbadge ${verdictClass(r.revisedVerdict||h.fw&&h.fw.verdict)}">${dash(r.revisedVerdict)}</span> <span style="color:var(--muted)">(unchanged)</span>${r.convictionDelta?` · conviction ${r.convictionDelta}`:''}`;
+  return `<div style="margin-top:12px;padding:10px 12px;border:1px solid rgba(79,157,255,.35);border-radius:10px;background:rgba(79,157,255,.05)">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <b>🏛 Policy update</b> ${chg}</div>
+    <div style="margin-top:6px;font-size:12.5px">${dash(r.policySummary)}</div>
+    ${r.caveat?`<div class="cap" style="margin-top:6px"><b>Caveat:</b> ${r.caveat}</div>`:''}
+    ${r.impact?`<div class="cap" style="margin-top:4px"><b>Impact:</b> ${r.impact}</div>`:''}
+    ${src?`<div class="cap" style="margin-top:6px">Sources: ${src}</div>`:''}
+    <div class="cap" style="margin-top:6px;color:var(--muted)">Generated by a Claude web-research pass, ${RESEARCH&&RESEARCH.asOf||''}. Verdict revision is a research suggestion — you decide.</div></div>`;
+}
+
+// ---- live refresh across all holdings ----
+function computeLive(c, h){
+  // Value-investor logic for a LONG-TERM holder: hold quality winners; act only on a genuine
+  // ISSUE. Rich valuation alone is NOT a sell (winners look expensive). Normal sector leverage
+  // (banks, utilities, infra, NBFCs, realty) is NOT a red flag. EXIT/TRIM come from real
+  // forensic/accounting red flags, dangerous promoter pledge, or survival-threatening debt.
+  const notes=[];
+  const sectorTxt=((c.sector||'')+' '+((h.fw&&h.fw.sector)||'')).toLowerCase();
+  const isFin=/financ|bank|nbfc|insurance|fin services/.test(sectorTxt);
+  const leveredSector=isFin||/utilit|power|energy|infrastructure|realty|real estate|logistics|port|capital goods|railway/.test(sectorTxt);
+  const iv=c.iv||{}; const mos=iv.intrinsic?((iv.intrinsic-c.price)/iv.intrinsic*100):null;
+  const counts=(c.forensicRatios&&c.forensicRatios.counts)||{};
+  // collect forensic red flags, but the ones that MATTER for quality are earnings-quality,
+  // hidden-balance-sheet and management — NOT leverage/EV/ROIC (which mis-fire on levered sectors).
+  // banks/NBFCs: cash-flow & working-capital ratios are meaningless too — judge on NIM/GNPA/CASA.
+  const skipCats = isFin
+    ? ['Debt & Financial Stress','Capital Efficiency','Hidden Balance-Sheet Risk','Earnings Quality','Working-Capital Forensics']
+    : leveredSector ? ['Debt & Financial Stress','Capital Efficiency','Hidden Balance-Sheet Risk'] : [];
+  const concerns=[];
+  ((c.forensicRatios&&c.forensicRatios.categories)||[]).forEach(cat=>cat.ratios.forEach(r=>{
+    if(r.signal==='bad' && !skipCats.includes(cat.name)) concerns.push({n:r.n,v:r.v,interp:r.interp,cat:cat.name});
+  }));
+  // A real red flag is a CORROBORATING CLUSTER across independent areas — not one isolated
+  // ratio ("the signal is in the RELATIONSHIP between ratios"). One flag from a capex year or
+  // a working-capital swing is benign; cash-quality falling AND receivables ballooning is not.
+  const GROUPS={
+    'cash-quality':/CFO ?\/ ?PAT|FCF ?\/ ?PAT|CFO ?\/ ?EBITDA|CFO ?\/ ?Sales|Accrual/i,
+    'receivables/inventory':/Receivable Growth|Receivables ?\/ ?CFO|Inventory Growth/i,
+    'balance-sheet/governance':/Goodwill|Intangibles|Contingent|Related-Party|Auditor|Subsidiary|Promoter (Pledge|Holding|Remuneration)/i
+  };
+  const redFlags=concerns.filter(x=>Object.values(GROUPS).some(re=>re.test(x.n)));
+  const groupsHit=Object.keys(GROUPS).filter(g=>concerns.some(x=>GROUPS[g].test(x.n)));
+  const corroborated=groupsHit.length>=2;
+  const critical=redFlags.length;
+  const gCash=concerns.filter(x=>GROUPS['cash-quality'].test(x.n)).length;
+  const gRecv=concerns.filter(x=>GROUPS['receivables/inventory'].test(x.n)).length;
+  const gGov=concerns.filter(x=>GROUPS['balance-sheet/governance'].test(x.n)).length;
+  // The actual fraud/deterioration SIGNATURE — profit not cash-backed AND receivables ballooning,
+  // or a governance flag alongside deteriorating cash, or an overwhelming cluster. Not a mild coincidence.
+  const severe=(gCash>=2 && gRecv>=1) || (gGov>=1 && (gCash>=1||gRecv>=1)) || critical>=5;
+  const sh=c.shareholding; const pledge=sh?sh.pledgedPct:null;
+  const de=c.debt&&c.debt.deRatio, icov=c.debt&&c.debt.interestCover;
+
+  let verdict='HOLD', cls='v-hold', label='On track';
+  // The NUMBERS only drive a sell on UNAMBIGUOUS signals (promoter pledge, survival-debt).
+  // Forensic ratios are a SCREEN for research — they can't tell fraud from healthy growth-capex,
+  // so they never declare a sell on their own. Research is what confirms a real issue.
+  if(pledge!=null&&pledge>25){verdict='EXIT';cls='v-exit';label='Red flag';notes.push(`promoter pledge ${pledge}% — financial-stress signal`);}
+  else if(!leveredSector && de!=null && de>2.5 && icov!=null && icov<1.3){verdict='EXIT';cls='v-exit';label='Solvency risk';notes.push(`debt threatens survival (D/E ${de}, interest cover ${icov}×)`);}
+  else if(pledge!=null&&pledge>10){verdict='TRIM';cls='v-trim';label='Watch';notes.push(`promoter pledge ${pledge}% — monitor`);}
+  else if(mos!=null&&mos>30&&(counts.bad||0)===0){verdict='ADD';cls='v-add';label='Attractive';notes.push(`~${mos.toFixed(0)}% below a conservative value estimate`);}
+  // forensic SCREEN notes (do NOT change the verdict) — surface the pattern for research to judge
+  if(verdict==='HOLD'||verdict==='ADD'){
+    if(severe) notes.push(`⚠ notable forensic pattern (${groupsHit.join(' + ')}: ${redFlags.map(x=>x.n).join(', ')}) — flagged for RESEARCH to confirm or clear; numbers alone can't tell fraud from benign growth`);
+    else if(corroborated) notes.push(`forensic flags in ${groupsHit.join(' + ')} (${redFlags.map(x=>x.n).join(', ')}) — a screen only, usually capex / working-capital / acquisition driven`);
+    else if(critical>=1) notes.push(`${critical} isolated forensic flag(s) (${redFlags.map(x=>x.n).join(', ')}) — screen only`);
+  }
+  // valuation context on a HOLD (never a sell for a long-term holder)
+  if(verdict==='HOLD'){
+    if(mos!=null&&mos<-30) notes.push(`richly valued (~${Math.abs(mos).toFixed(0)}% above a conservative estimate) — normal for a winner; hold`);
+    else if(mos!=null&&mos>15) notes.push('reasonably valued');
+    notes.push('No confirmed red flags; thesis intact.');
+  }
+  // informational context (does not change the call)
+  if(!leveredSector && de!=null && de>1.5) notes.push(`carries leverage (D/E ${de}) — watch, not a sell`);
+  if(sh&&sh.fiiChange!=null&&sh.diiChange!=null&&(sh.fiiChange+sh.diiChange)<-2) notes.push(`institutions trimming (${(sh.fiiChange+sh.diiChange).toFixed(1)} pp last qtr)`);
+  if(isFin) notes.push('Bank/NBFC — judge on NIM/GNPA/CASA/RoA (not leverage or EV/EBITDA).');
+
+  let conv=3;
+  if(verdict==='ADD') conv=4;
+  if(verdict==='HOLD'&&(counts.bad||0)===0&&(counts.good||0)>=15) conv=4;
+  if(verdict==='TRIM') conv=2;
+  if(verdict==='EXIT') conv=1;
+  conv=Math.max(1,Math.min(5,conv));
+  const rationale=`Live read: ${verdict} (${label}). `+notes.slice(0,3).join(' ');
+  return {action:verdict,cls,label,verdict,conviction:conv,rationale,notes,mos,counts,concerns,redFlags:critical};
+}
+// decision scorecard (§15) + confidence (§22) + scenarios (§21)
+function confBadge(c){ return c==='HIGH'?'b-green':c==='MEDIUM'?'b-amber':'b-red'; }
+// derive scorecard deltas for the proxy rows from the research overlay (Issue 2)
+function researchScore(rv){
+  if(!rv) return null;
+  const txt=((rv.policySummary||'')+' '+(rv.caveat||'')+' '+(rv.impact||'')).toLowerCase();
+  const vd=(rv.revisedVerdict||'').toUpperCase();
+  const bad=/EXIT|MUST-SELL|SELL/.test(vd);
+  // high-precision signals (specific phrases, not vague words that appear in benign caveats)
+  const forensic=/warning letter|form 483|\b483\b|modified (audit|review)|audit qualif|qualified opinion|\bfraud\b|siphon|accounting irregular|revenue-recognition irregular|revenue recognition irregular|sebi (order|investigation|probe)|misstatement|cgmp/.test(txt);
+  const liveMark=/still live|ongoing|live as of|not (yet )?(closed|resolved)|deferred purchases|net loss/.test(txt);
+  const moatThreat=/(losing|loss of|declining|ceding|erosion of) (market )?share|structural (headwind|overhang)[^.]*?(margin|share|paint)|birla opus|pricing war|price war/.test(txt);
+  const policyFav=/removed restrictions|removed the restriction|policy tailwind|ethanol blending|blending mandate|e2[05]\b|production-linked|\bpli\b|liberalis|import-duty cut|lifts (the )?(limit|restriction)|lifted (the )?(limit|restriction)|subsidy support/.test(txt);
+  const policyAd=/windfall tax|\blevy\b|import duty|adverse policy|regulatory clampdown|price cap|\bban on\b|gst overhaul|tax overhaul|higher (excise|gst)/.test(txt);
+  const good=/constructive|strengthened|upgrade(d)?|record (quarter|revenue|ebitda|profit)|inflect|best profit|blockbuster|stellar|strongest|re-rat|materially removes|overhang (eased|removed)/.test(txt);
+  let bq,mg,sp,bqN,mgN,spN;
+  // Business quality & moat (max 15) — thesis break caps it; a real structural threat trims it
+  if(bad){bq=4;bqN='research: thesis break';} else if(moatThreat){bq=-3;bqN='research: structural competitive threat';} else if(good){bq=+2;bqN='research: thesis strengthened';} else {bq=+1;bqN='research: thesis intact';}
+  // Management & capital allocation (max 10) — a live forensic flag is the real signal
+  if(bad){mg=forensic?-6:-3;mgN=forensic?'research: forensic flag — must-sell':'research: thesis-adverse';}
+  else if(forensic&&liveMark){mg=-3;mgN='research: live governance/forensic flag';}
+  else if(forensic){mg=-1;mgN='research: regulatory/audit observation';}
+  else if(good){mg=+1;mgN='research: sound capital allocation';}
+  else {mg=+1;mgN='research: no governance red flag';}
+  // Sector / policy / macro (max 5) — a favourable policy dominates a historical adverse note
+  if(bad){sp=1;spN='research: sector/thesis adverse';}
+  else if(policyFav){sp=5;spN='research: policy tailwind';}
+  else if(policyAd){sp=2;spN='research: policy/macro headwind';}
+  else {sp=4;spN='research: sector read confirmed';}
+  return {bq,mg,sp,bqN,mgN,spN,absBq:bad};
+}
+function renderScorecard(c, research){
+  const sc=c&&c.scorecard; if(!sc) return '';
+  const adj=researchScore(research);
+  let rowsData=sc.rows.map(r=>Object.assign({},r));
+  if(adj){
+    rowsData=rowsData.map(r=>{
+      if(r.k.startsWith('Business quality')){const v=adj.absBq?adj.bq:Math.max(0,Math.min(r.max,r.v+adj.bq));return Object.assign({},r,{v,note:adj.bqN});}
+      if(r.k.startsWith('Management')){const v=Math.max(0,Math.min(r.max,r.v+adj.mg));return Object.assign({},r,{v,note:adj.mgN});}
+      if(r.k.startsWith('Sector'))    {return Object.assign({},r,{v:Math.max(0,Math.min(r.max,adj.sp)),note:adj.spN});}
+      return r;
+    });
+  }
+  const tot=adj?rowsData.reduce((a,r)=>a+r.v,0):sc.total;
+  const band=tot>=75?'#4ade80':tot>=55?'#7db8ff':tot>=40?'#fbbf24':'#f87171';
+  const rows=rowsData.map(r=>{const pct=r.max?r.v/r.max*100:0;const col=pct>=70?'#4ade80':pct>=45?'#7db8ff':pct>=25?'#fbbf24':'#f87171';
+    return `<div class="ratio-row" style="padding:4px 0"><span class="lbl" style="flex:0 0 210px">${r.k}${r.note?` <span style="font-size:9.5px;color:var(--muted)">${r.note}</span>`:''}</span>
+      <span style="flex:1;display:flex;align-items:center;gap:8px"><span style="flex:1;height:7px;background:var(--panel2);border-radius:4px;overflow:hidden"><span style="display:block;height:100%;width:${pct}%;background:${col}"></span></span>
+      <span class="val" style="flex:0 0 42px;text-align:right">${r.v}/${r.max}</span></span></div>`;}).join('');
+  const sn=c.scenarios;
+  const scen=sn?`<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--panel2)">
+    <div class="lbl">Scenarios (intrinsic value per share)</div>
+    <div style="display:flex;gap:6px;margin-top:5px;font-size:11px;text-align:center">
+      <div style="flex:1;background:rgba(34,197,94,.15);padding:4px;border-radius:5px">Bull<br><b>₹${sn.bull.toLocaleString('en-IN')}</b></div>
+      <div style="flex:1;background:rgba(79,157,255,.15);padding:4px;border-radius:5px">Base<br><b>₹${sn.base.toLocaleString('en-IN')}</b></div>
+      <div style="flex:1;background:rgba(245,158,11,.15);padding:4px;border-radius:5px">Bear<br><b>₹${sn.bear.toLocaleString('en-IN')}</b></div>
+      <div style="flex:1;background:rgba(239,68,68,.15);padding:4px;border-radius:5px">Severe<br><b>₹${sn.severe.toLocaleString('en-IN')}</b></div>
+    </div></div>`:'';
+  return `<div class="card">
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <div style="text-align:center"><div style="font-size:30px;font-weight:800;color:${band};line-height:1">${tot}<span style="font-size:14px;color:var(--muted)">/100</span></div>
+        <div class="cap">decision score</div></div>
+      <div><span class="badge ${confBadge(c.confidence)}">Confidence: ${c.confidence}</span>
+        <div class="cap" style="margin-top:4px;max-width:520px">${dash(c.confidenceNote)}</div></div>
+    </div>
+    <div style="margin-top:10px">${rows}</div>
+    ${scen}
+    <div class="cap" style="margin-top:8px">${adj?'<b style="color:#7db8ff">✓ Research-informed</b> — business-quality, management &amp; sector/policy rows are set from the latest research overlay (not proxies). ':''}${dash(sc.note)}</div></div>`;
+}
+// price-band engine — at what price to add / accumulate / hold / trim
+function renderPriceBands(iv){
+  if(!iv||!iv.bands) return '';
+  const b=iv.bands, z=iv.zone||'';
+  const zc = z.includes('ADD')?'#4ade80':z.includes('ACCUMULATE')?'#4ade80':z.includes('TRIM')?'#f87171':z.includes('rich')?'#fbbf24':'#7db8ff';
+  const cell=(lbl,sub,bg,active)=>`<div style="flex:1;background:${bg};padding:4px 2px;text-align:center;font-size:10px;${active?'outline:2px solid #fff;outline-offset:-2px;font-weight:700':''}">${lbl}<br><span style="color:var(--muted)">${sub}</span></div>`;
+  const p=iv.price;
+  return `<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--panel2)">
+    <div class="lbl">Action price bands <span style="color:var(--muted)">— now ₹${p.toLocaleString('en-IN')} → <b style="color:${zc}">${z}</b></span></div>
+    <div style="display:flex;gap:0;border-radius:6px;overflow:hidden;margin-top:5px">
+      ${cell('Strong Add','&lt; ₹'+b.strongAdd,'rgba(34,197,94,.28)',p<=b.strongAdd)}
+      ${cell('Accumulate','₹'+b.strongAdd+'–'+b.accumulate,'rgba(34,197,94,.15)',p>b.strongAdd&&p<=b.accumulate)}
+      ${cell('Hold · fair','₹'+b.fairLow+'–'+b.fairHigh,'rgba(79,157,255,.15)',p>b.accumulate&&p<=b.fairHigh)}
+      ${cell('Rich · hold','₹'+b.fairHigh+'–'+b.trim,'rgba(245,158,11,.15)',p>b.fairHigh&&p<=b.trim)}
+      ${cell('Trim','&gt; ₹'+b.trim,'rgba(239,68,68,.18)',p>b.trim)}
+    </div>
+    <div class="cap" style="margin-top:4px">Below fair = margin of safety to add; a rich winner is a hold, not an automatic sell (trim only on materially excessive price + portfolio reasons).</div></div>`;
+}
+// sector-specific analytical lens (from the sector knowledge base)
+function renderSectorLens(c){
+  const s=c&&c.sectorLens; if(!s) return '';
+  const chips=(arr,cls)=>(arr||[]).map(x=>`<span class="ptag ${cls}">${x}</span>`).join('');
+  return `<div style="margin-top:12px"><h3 style="margin-bottom:4px">🧭 Sector lens — ${s.bucket} <span style="font-size:10.5px;color:var(--muted)">— not one-size-fits-all</span></h3>
+    <div style="font-size:12.5px">${s.lens}</div>
+    <div style="margin-top:8px"><span class="cap">Watch:</span> ${chips(s.keyMetrics,'pt-tailwind')}</div>
+    <div style="margin-top:4px"><span class="cap">Sector red flags:</span> ${chips(s.redFlags,'pt-headwind')}</div>
+    ${s.deEmphasise&&s.deEmphasise.length?`<div style="margin-top:4px"><span class="cap">Don't judge on (misleads here):</span> ${chips(s.deEmphasise,'pt-tail')}</div>`:''}
+    <div class="cap" style="margin-top:8px"><b>Investor lens:</b> ${s.investorLens}</div>
+    <div class="cap" style="margin-top:2px">📄 ${s.feedGap}</div></div>`;
+}
+// compact four-lens committee (Graham/Buffett/Munger/Dalio/Lynch) from live personas
+function renderCommittee(c){
+  if(!c||!c.personas) return '';
+  const order=[['graham','Graham'],['buffett','Buffett'],['munger','Munger'],['lynch','Lynch'],['dalio','Dalio'],['risk','Institutional Risk']];
+  const rows=order.filter(([k])=>c.personas[k]).map(([k,nm])=>{
+    const p=c.personas[k]; const vc=p.vc==='green'?'b-green':p.vc==='amber'?'b-amber':p.vc==='red'?'b-red':'b-blue';
+    return `<div class="flag"><span class="ico">◆</span><span><b>${nm}:</b> <span class="badge ${vc}">${p.verdict}</span> ${p.text}</span></div>`;
+  }).join('');
+  return `<h3 style="margin:12px 0 6px">Four-lens committee <span style="font-size:10.5px;color:var(--muted)">— live, independent</span></h3>${rows}`;
+}
+// live forensic block for the detail panel (leverages Forensic Ratio Analysis)
+function renderLiveForensic(h){
+  const c=h.company, live=h.live; if(!c||!live) return '';
+  const iv=c.iv||{};
+  const k=live.counts||{};
+  const con=(live.concerns||[]).map(r=>`<div class="flag"><span class="ico">🔴</span><span><b>${r.n}</b> = ${r.v} — ${r.interp} <span style="color:var(--muted)">(${r.cat})</span></span></div>`).join('');
+  const sh=c.shareholding;
+  return `<div style="margin-top:12px"><h3 style="margin-bottom:6px">Live forensic &amp; valuation reading <span style="font-size:10.5px;color:var(--muted)">— computed now from the ${(c.forensicRatios&&c.forensicRatios.categories||[]).reduce((a,x)=>a+x.ratios.length,0)}-ratio engine</span></h3>
+    <div class="health">
+      <span><b style="color:#4ade80">${k.good||0}</b> positive</span>
+      <span><b style="color:#fbbf24">${k.warn||0}</b> watch</span>
+      <span><b style="color:#f87171">${(live.concerns||[]).length}</b> concern</span>
+      <span>Live price <b>${fmtP(c.price)}</b></span>
+      ${iv.intrinsic?`<span>Est. value <b>${fmtP(iv.intrinsic)}</b> · MoS <b class="${live.mos>=0?'up':'down'}">${live.mos>=0?'+':''}${(live.mos||0).toFixed(0)}%</b></span>`:''}
+      ${sh&&sh.pledgedPct!=null?`<span>Pledge <b>${sh.pledgedPct}%</b></span>`:''}
+      ${sh&&sh.fiiChange!=null?`<span>FII Δ <b class="${sh.fiiChange>=0?'up':'down'}">${sh.fiiChange>=0?'+':''}${sh.fiiChange}pp</b> · DII Δ <b class="${sh.diiChange>=0?'up':'down'}">${sh.diiChange>=0?'+':''}${sh.diiChange}pp</b></span>`:''}
+    </div>
+    ${con?`<div style="margin-top:4px">${con}</div>`:'<div class="cap">No ratio-level concerns flagged in the live run.</div>'}
+    <div class="cap" style="margin-top:6px">Valuation method: ${dash(iv.method)}.${iv.expectation&&iv.expectation!=='n/a'?` Market expectation (reverse-DCF): <b>${iv.expectation}</b> — ${dash(iv.expectationText)}.`:''}</div>
+    ${renderPriceBands(iv)}</div>`;
+}
+let refreshing=false;
+async function refreshAllLive(){
+  const btn=$('#btnRefresh'), prog=$('#refProg');
+  if(refreshing){ return; }            // button is disabled while running anyway
+  refreshing=true;
+  btn.disabled=true; btn.style.opacity='.6';
+  const N=HOLDINGS.length; let done=0, ok=0, failed=[];
+  const setProg=()=>{
+    btn.textContent=`⏳ Refreshing ${done}/${N}…`;
+    prog.innerHTML=`<span style="font-size:11px;color:var(--muted)">fetching live data for all ${N} holdings — please wait…</span>
+      <div class="progress" style="display:inline-block;width:180px;vertical-align:middle;margin-left:8px"><div style="width:${(done/N*100)}%"></div></div>
+      <span style="font-size:11px;color:var(--muted)"> ${done}/${N}</span>`;
+  };
+  setProg();
+  // process ALL holdings with limited concurrency (fast, but complete before finishing)
+  const queue=HOLDINGS.slice();
+  async function worker(){
+    while(queue.length){
+      const h=queue.shift();
+      try{
+        const c=await apiGet('/api/company/'+encodeURIComponent(h.symbol));
+        if(!c.error){ h.company=c; h.live=computeLive(c,h);
+          if(c.price){ h.ltp=c.price; h.curVal=c.price*h.qty; if(h.invested){h.pnl=h.curVal-h.invested; h.pnlPct=h.pnl/h.invested*100;} }
+          ok++;
+        } else failed.push(h.symbol);
+      }catch(e){ failed.push(h.symbol); }
+      done++; setProg();
+      if(done%6===0){ renderHoldTable(); }
+    }
+  }
+  await Promise.all(Array.from({length:4},()=>worker()));   // 4 at a time
+  renderPortfolio(); if(selectedSym) renderDetail(HOLDINGS.find(x=>x.symbol===selectedSym));
+  btn.disabled=false; btn.style.opacity='1'; btn.textContent='↻ Refresh quant (all)';
+  const mi=HOLDINGS.filter(materialDivergence).length;
+  // re-query #refProg: renderPortfolio() rebuilt the toolbar, so the old ref is detached
+  const p2=$('#refProg'); if(p2) p2.innerHTML=`<span style="font-size:12px;color:#4ade80">✓ Done — updated ${ok}/${N} holdings at ${new Date().toLocaleTimeString('en-IN')}. </span>`
+    +`<span style="font-size:11px;color:var(--muted)">${mi} material issue${mi!==1?'s':''} to review${failed.length?` · ${failed.length} couldn't fetch (${failed.slice(0,5).join(', ')})`:''}.</span>`;
+  refreshing=false;
+  saveHoldings();
+}
+
+// ---- Excel export (backend builds the .xlsx) ----
+async function exportExcel(){
+  const btn=$('#btnExport'); btn.disabled=true; btn.textContent='⬇ Building…';
+  const rows=HOLDINGS.map(h=>({symbol:h.symbol,sector:(h.fw&&h.fw.sector)||'',qty:h.qty,avg:h.avg,ltp:h.ltp,
+    value:h.curVal,weight:h.weight,pnlPct:h.pnlPct,verdict:(h.fw&&h.fw.verdict)||'',conviction:(h.fw&&h.fw.conviction)||'',
+    basis:(h.fw&&h.fw.basis)||'',rationale:(h.fw&&h.fw.rationale)||'',
+    liveStatus:h.live?h.live.label:'',liveAction:h.live?h.live.action:'',liveNotes:h.live?h.live.notes.join(' '):''}));
+  try{
+    const base=(location.origin.startsWith('http')?location.origin:'http://127.0.0.1:5000');
+    const r=await fetch(base+'/api/export',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rows})});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const blob=await r.blob(); const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download='Portfolio_Reading_'+new Date().toISOString().slice(0,10)+'.xlsx';
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  }catch(e){ alert('Export failed: '+e.message+'\nMake sure the backend (server.py) is running.'); }
+  btn.disabled=false; btn.textContent='⬇ Download Excel';
+}
+
+/* ---- optional Screener.in quarterly gap-fill (single-company view) ---- */
+function fiscalOrd(y,m){ const FQ={6:1,9:2,12:3,3:4}; const fq=FQ[m]||(((m-1)/3|0)+1); const fy=(m>=4)?y+1:y; return fy*4+(fq-1); }
+async function fillFromScreener(file){
+  const ctrl=$('#screenerCtrl'); const old=ctrl?ctrl.innerHTML:'';
+  if(ctrl) ctrl.innerHTML=' · <span style="color:var(--muted)">reading Screener file…</span>';
+  try{
+    const fd=new FormData(); fd.append('file',file);
+    const base=(location.origin.startsWith('http')?location.origin:'http://127.0.0.1:5000');
+    const r=await fetch(base+'/api/screener',{method:'POST',body:fd});
+    const d=await r.json();
+    if(d.error) throw new Error(d.error);
+    if(!d.quarters||!d.quarters.length) throw new Error('no quarterly data found — is this a Screener “Export to Excel” file?');
+    const map={}; d.quarters.forEach(q=>{ map[fiscalOrd(q.y,q.m)]={rev:q.rev,ebitda:q.ebitda,interest:q.interest,np:q.np}; });
+    let filled=0;
+    (currentData.quarters||[]).forEach(q=>{ if(q.missing && map[q.o]){ Object.assign(q,map[q.o],{missing:false,src:'Screener'}); filled++; } });
+    renderCompany(currentData);
+    setTimeout(()=>{ const c2=$('#screenerCtrl'); if(c2) c2.innerHTML=filled
+      ? ` · <span class="up">✓ filled ${filled} quarter(s) from Screener (${dash(d.company)})</span>`
+      : ` · <span style="color:var(--muted)">Screener loaded (${dash(d.company)}) — no gaps to fill</span>`; },60);
+  }catch(e){ if(ctrl) ctrl.innerHTML=old; alert('Screener import failed: '+e.message+'\n\nUse Screener.in → the company page → “Export to Excel”.'); }
+}
+const scr=$('#screenerInput');
+if(scr) scr.onchange=()=>{ if(scr.files[0]) fillFromScreener(scr.files[0]); scr.value=''; };
+
+// initial load
+select('RELIANCE');
+</script>
+</body>
+</html>

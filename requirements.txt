@@ -1,0 +1,4 @@
+flask
+flask-cors
+yfinance
+curl_cffi
