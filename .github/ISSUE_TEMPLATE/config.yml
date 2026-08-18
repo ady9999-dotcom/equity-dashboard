@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Documentation
+    url: https://github.com/ady9999-dotcom/equity-dashboard/blob/main/docs/ARCHITECTURE.md
+    about: How the app is built (technical) and the investing framework (functional).
+  - name: 📋 Version history
+    url: https://github.com/ady9999-dotcom/equity-dashboard/blob/main/CHANGELOG.md
+    about: What changed in each version — read before requesting an enhancement.

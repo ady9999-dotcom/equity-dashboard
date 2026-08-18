@@ -6,6 +6,19 @@ Format: this project uses simple dated, semantic-ish versions. Newest first.
 
 ---
 
+## [1.1.0] — 2026-08-18 — Public-repo polish
+
+Docs & repo hygiene only — no functional changes to the app.
+
+- README: badges row, hero image, and a 6-panel visual feature tour.
+- Added `docs/screenshots/` (drop in `01-hero.png` … `07-forensic-tabs.png`).
+- Issue templates: Bug report · Feature request · Feedback on a company's read.
+- Blank-issue disabled with contact links to `docs/ARCHITECTURE.md` and `CHANGELOG.md`.
+- `CONTRIBUTING.md` — how to help, house rules, and a reminder to keep personal data out.
+- `docs/POSTS.md` — draft launch posts for Reddit / Hacker News / LinkedIn / X.
+
+---
+
 ## [1.0.0] — 2026-08-20 — First complete, working version
 
 The initial full build. Everything below is live and verified in-browser.

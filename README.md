@@ -1,10 +1,46 @@
 # Equity Dashboard — BSE / NSE
 
+![License: PolyForm Noncommercial 1.0.0](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue)
+![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
+![Platform: Windows](https://img.shields.io/badge/platform-Windows-informational)
+![Status: v1.0.0](https://img.shields.io/badge/version-1.0.0-brightgreen)
+![Not investment advice](https://img.shields.io/badge/⚠-not%20investment%20advice-critical)
+
 A long-horizon, value-investing analysis dashboard for Indian listed equities (NSE / BSE). It fetches live prices and filed financials, values each company with **sector-appropriate, through-cycle methods**, runs a **forensic-ratio screen**, applies a dedicated **bank / NBFC / FI module**, and reads every stock through a **four-lens investor committee** — then synthesises a Buy / Accumulate / Hold / Trim / Exit call with a margin-of-safety buy band.
 
 It also has an **Equity Holdings** tab that ingests a Zerodha holdings CSV, matches it to your audited framework Excel, and shows both your dated verdict and a **live framework read** that recomputes each quarter as new results are filed.
 
 > **Not investment advice.** Every output is decision-support only, for education. It is not SEBI-registered advice. You make all decisions and bear the outcome.
+
+![Equity Dashboard — Reliance Industries](docs/screenshots/01-hero.png)
+
+---
+
+## A quick tour
+
+**Cash & working capital** — 5-year capex vs OCF, cash balance & free-cash-flow trend, and the working-capital cycle in one view.
+
+![Cash flow and working capital](docs/screenshots/02-cash-and-working-capital.png)
+
+**Quarterly performance** — last 6–8 quarters with revenue, EBITDA, interest and net profit, plus a latest-quarter panel with QoQ.
+
+![Quarterly performance](docs/screenshots/03-quarterly.png)
+
+**Valuation, debt & forensic flags** — scenario intrinsic value (bear · base · bull), MoS buy band, action-price bands, a proper debt read (net-debt/EBITDA, CFO/debt, FCF/debt), and quick forensic screens.
+
+![Valuation, debt and forensic flags](docs/screenshots/04-valuation-debt-forensic.png)
+
+**Decision scorecard** — a 100-point score with confidence level, 10 breakdown rows and base/bull/bear/severe scenarios. Business-quality, management and sector rows fold in the research overlay when present.
+
+![Decision scorecard](docs/screenshots/05-decision-scorecard.png)
+
+**Sector lens + shareholding & institutional flow** — how each sector *must* be read (metrics, red flags, "don't judge on"), plus promoter / FII / DII / retail split with QoQ change and a 6-quarter promoter trend.
+
+![Sector lens and shareholding](docs/screenshots/06-sector-and-shareholding.png)
+
+**Forensic ratio analysis** — ~40 diagnostic ratios in 7 tabbed categories, each tagged good / watch / concern with a plain-language read. A screen, not a verdict.
+
+![Forensic ratios](docs/screenshots/07-forensic-tabs.png)
 
 ---
 
