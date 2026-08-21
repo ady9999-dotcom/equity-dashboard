@@ -14,6 +14,7 @@ Then open http://127.0.0.1:5000  in your browser.
 import math
 import os
 import re
+import time
 import datetime as dt
 from flask import Flask, jsonify, send_from_directory, request
 from flask_cors import CORS
@@ -94,27 +95,32 @@ def cr(x):
     return None if x is None else round(x / CR)
 
 
-def resolve_ticker(sym: str):
-    """Try NSE (.NS) first, then BSE (.BO). Accept a full ticker as given."""
+def resolve_ticker(sym: str, tries: int = 3):
+    """Try NSE (.NS) first, then BSE (.BO). Accept a full ticker as given.
+
+    Yahoo intermittently returns an EMPTY frame (or throws) for a perfectly valid
+    ticker under rate-limiting/load, so we retry with a short backoff before giving
+    up — a single transient empty response must not be mistaken for 'no such stock'.
+    Returns (ticker, resolved, hist, status) where status is 'ok', or 'transient'
+    if every attempt failed to return data (likely a temporary provider hiccup)."""
     sym = sym.strip().upper()
-    candidates = []
-    if sym.endswith((".NS", ".BO")):
-        candidates = [sym]
-    else:
-        candidates = [sym + ".NS", sym + ".BO"]
-    for c in candidates:
-        t = yf.Ticker(c)
-        try:
-            h = t.history(period="7d")
-            if h is not None and not h.empty:
-                return t, c, h
-        except Exception:
-            continue
-    return None, None, None
+    candidates = [sym] if sym.endswith((".NS", ".BO")) else [sym + ".NS", sym + ".BO"]
+    for attempt in range(tries):
+        for c in candidates:
+            try:
+                t = yf.Ticker(c)
+                h = t.history(period="7d")
+                if h is not None and not h.empty:
+                    return t, c, h, "ok"
+            except Exception:
+                continue
+        if attempt < tries - 1:
+            time.sleep(0.7 * (attempt + 1))   # back off, then retry (handles Yahoo throttling)
+    return None, None, None, "transient"
 
 
 def build_company(sym: str):
-    t, resolved, hist = resolve_ticker(sym)
+    t, resolved, hist, _status = resolve_ticker(sym)
     if t is None:
         return None
 
@@ -1594,7 +1600,11 @@ def company(sym):
     try:
         data = build_company(sym)
         if data is None:
-            return jsonify({"error": f"Could not fetch data for '{sym}'. Try the NSE symbol (e.g. RELIANCE) or add .BO for BSE."}), 404
+            return jsonify({"error": f"Couldn't fetch '{sym}' just now — this is usually a brief hiccup "
+                                     f"from the data provider (Yahoo Finance) under load. Please try again in "
+                                     f"a few seconds. If it keeps failing, check the NSE ticker (e.g. RELIANCE), "
+                                     f"or add .BO for a BSE-only stock.",
+                            "retry": True}), 503
         rv = _overlay_for(sym)
         if rv:
             data["research"] = rv

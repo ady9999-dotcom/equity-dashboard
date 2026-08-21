@@ -481,7 +481,13 @@ let LIVE=false;                       // becomes true once a backend call succee
 async function apiGet(path){
   const base = API || (location.origin.startsWith('http')?location.origin:'http://127.0.0.1:5000');
   const r = await fetch(base+path,{cache:'no-store'});
-  if(!r.ok) throw new Error('HTTP '+r.status);
+  if(!r.ok){
+    // surface the backend's own (honest) message instead of a bare "HTTP 404",
+    // and flag transient failures so the caller can auto-retry
+    let msg='HTTP '+r.status, retry=(r.status===503||r.status>=500);
+    try{const j=await r.json(); if(j&&j.error) msg=j.error; if(j&&j.retry) retry=true;}catch(e){}
+    const err=new Error(msg); err.status=r.status; err.retry=retry; throw err;
+  }
   return r.json();
 }
 

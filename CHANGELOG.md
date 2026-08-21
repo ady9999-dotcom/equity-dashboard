@@ -6,6 +6,18 @@ Format: this project uses simple dated, semantic-ish versions. Newest first.
 
 ---
 
+## [1.1.1] — 2026-08-20 — Resilient data fetch
+
+- `resolve_ticker` now **retries with a short backoff** (3 attempts) when Yahoo
+  returns an empty frame under rate-limiting — a transient blip no longer looks
+  like "no such stock".
+- On failure the API returns **HTTP 503 with a clear "temporary hiccup, try again
+  in a few seconds" message** (was a misleading 404 "check the symbol").
+- The frontend surfaces the backend's honest message instead of a bare "HTTP 404"
+  and flags transient failures for retry.
+
+---
+
 ## [1.1.0] — 2026-08-18 — Public-repo polish
 
 Docs & repo hygiene only — no functional changes to the app.
